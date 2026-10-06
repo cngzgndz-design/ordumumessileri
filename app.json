@@ -1,14 +1,14 @@
 {
   "expo": {
     "name": "Ordu Mümessilleri",
-    "slug": "ilk-temiz-uygulamam",
+    "slug": "ordumumessilleri",
     "version": "1.1.8",
     "orientation": "default",
     "icon": "./assets/logo.png",
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.cngzgndz.ilktemizuygulamam1",
+      "bundleIdentifier": "com.cngzgndz.ordumumessilleri",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -16,8 +16,7 @@
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#FFFFFF",
-        "foregroundImage": "./assets/logo.png",
-        "monochromeImage": "./assets/logo.png"
+        "foregroundImage": "./assets/logo.png"
       },
       "package": "com.cengizgunduz.ordumumessilleri",
       "versionCode": 19
@@ -39,14 +38,18 @@
         "expo-build-properties",
         {
           "android": {
-            "enableProguardInReleaseBuilds": true
+            "enableProguardInReleaseBuilds": true,
+            "enableMinifyInReleaseBuilds": true
+          },
+          "ios": {
+            "deploymentTarget": "16.4"
           }
         }
       ]
     ],
     "extra": {
       "eas": {
-        "projectId": "10d84474-0e4b-4d04-8429-433a522efeaf"
+        "projectId": "b63aa912-6bcc-4c56-97e2-f76be7fbe0ac"
       }
     }
   }
