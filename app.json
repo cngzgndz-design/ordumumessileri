@@ -2,7 +2,7 @@
   "expo": {
     "name": "Ordu Mümessilleri",
     "slug": "ordumumessilleri",
-    "version": "1.1.8",
+    "version": "1.1.9",
     "orientation": "default",
     "icon": "./assets/logo.png",
     "userInterfaceStyle": "light",
@@ -19,7 +19,7 @@
         "foregroundImage": "./assets/logo.png"
       },
       "package": "com.cengizgunduz.ordumumessilleri",
-      "versionCode": 19
+      "versionCode": 20
     },
     "web": {
       "favicon": "./assets/logo.png"
