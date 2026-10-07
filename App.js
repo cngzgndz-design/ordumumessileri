@@ -842,33 +842,70 @@ export default function App() {
     }
   };
 
-  const kategoriDuzenle = async (katNesnesi) => {
-    const yeniAd = window.prompt(`"${katNesnesi.name}" kategorisinin yeni adı ne olsun?`, katNesnesi.name);
-    if (yeniAd && yeniAd.trim() !== "" && yeniAd.trim() !== katNesnesi.name) {
-      const temizYeniAd = yeniAd.trim();
-      try {
-        await updateDoc(doc(db, "kategoriler", katNesnesi.id), { name: temizYeniAd });
-        if (formSeciliKategori === katNesnesi.name) setFormSeciliKategori(temizYeniAd);
-        if (seciliKategoriFiltre === katNesnesi.name) setSeciliKategoriFiltre(temizYeniAd);
-        alert("Kategori güncellendi.");
-      } catch (error) {
-        alert("Hata: " + error.message);
+  const kategoriDuzenle = (katNesnesi) => {
+    if (Platform.OS === 'web') {
+      const yeniAd = window.prompt(`"${katNesnesi.name}" kategorisinin yeni adı ne olsun?`, katNesnesi.name);
+      if (yeniAd && yeniAd.trim() !== "" && yeniAd.trim() !== katNesnesi.name) {
+        const temizYeniAd = yeniAd.trim();
+        updateDoc(doc(db, "kategoriler", katNesnesi.id), { name: temizYeniAd }).then(() => {
+          if (formSeciliKategori === katNesnesi.name) setFormSeciliKategori(temizYeniAd);
+          if (seciliKategoriFiltre === katNesnesi.name) setSeciliKategoriFiltre(temizYeniAd);
+          alert("Kategori güncellendi.");
+        }).catch((error) => {
+          alert("Hata: " + error.message);
+        });
       }
+    } else {
+      Alert.prompt(
+        "Kategori Düzenle",
+        `"${katNesnesi.name}" kategorisinin yeni adı:`,
+        [
+          { text: "İptal", style: "cancel" },
+          {
+            text: "Güncelle",
+            onPress: async (yeniAd) => {
+              if (yeniAd && yeniAd.trim() !== "" && yeniAd.trim() !== katNesnesi.name) {
+                const temizYeniAd = yeniAd.trim();
+                try {
+                  await updateDoc(doc(db, "kategoriler", katNesnesi.id), { name: temizYeniAd });
+                  if (formSeciliKategori === katNesnesi.name) setFormSeciliKategori(temizYeniAd);
+                  if (seciliKategoriFiltre === katNesnesi.name) setSeciliKategoriFiltre(temizYeniAd);
+                  alert("Kategori güncellendi.");
+                } catch (error) {
+                  alert("Hata: " + error.message);
+                }
+              }
+            }
+          }
+        ],
+        "plain-text",
+        katNesnesi.name
+      );
     }
   };
 
-  const kategoriSil = async (katNesnesi) => {
-    const onay = window.confirm(`"${katNesnesi.name}" kategorisini silmek istiyor musunuz?`);
-    if (onay) {
-      try {
-        await deleteDoc(doc(db, "kategoriler", katNesnesi.id));
-        if (formSeciliKategori === katNesnesi.name) setFormSeciliKategori('');
-        if (seciliKategoriFiltre === katNesnesi.name) setSeciliKategoriFiltre('Hepsi');
-        alert("Kategori silindi.");
-      } catch (error) {
-        alert("Hata: " + error.message);
-      }
-    }
+  const kategoriSil = (katNesnesi) => {
+    Alert.alert(
+      "Kategoriyi Sil",
+      `"${katNesnesi.name}" kategorisini silmek istiyor musunuz?`,
+      [
+        { text: "İptal", style: "cancel" },
+        {
+          text: "Evet, Sil",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteDoc(doc(db, "kategoriler", katNesnesi.id));
+              if (formSeciliKategori === katNesnesi.name) setFormSeciliKategori('');
+              if (seciliKategoriFiltre === katNesnesi.name) setSeciliKategoriFiltre('Hepsi');
+              alert("Kategori silindi.");
+            } catch (error) {
+              alert("Hata: " + error.message);
+            }
+          }
+        }
+      ]
+    );
   };
 
   const sosyalLinkAc = (platform, deger) => {
@@ -1914,7 +1951,7 @@ const logoStyles = StyleSheet.create({
   logoMetinAlani: { flexDirection: 'column', alignItems: 'center', marginTop: 5 },
   logoDaireGrup: { width: 100, height: 100, position: 'relative', justifyContent: 'center', alignItems: 'center' },
   insanKafa: { width: 10, height: 10, borderRadius: 5, position: 'absolute', zIndex: 3 },
-  insanGövde: { width: 26, height: 18, borderRadius: 13, borderStyle: 'solid', position: 'absolute', zIndex: 2 },
+  insnGövde: { width: 26, height: 18, borderRadius: 13, borderStyle: 'solid', position: 'absolute', zIndex: 2 },
   logoAnaYazi: { fontSize: 32, fontWeight: '900', color: '#00205B', letterSpacing: 4, textAlign: 'center', fontFamily: 'sans-serif' },
   logoAltYazi: { fontSize: 11, fontWeight: '700', color: '#00205B', letterSpacing: 2.2, marginTop: 4, textAlign: 'center', fontFamily: 'sans-serif' }
 });
@@ -2019,7 +2056,7 @@ const styles = StyleSheet.create({
   yardimciMiniKart: { backgroundColor: '#f8fafc', width: 140, padding: 12, borderRadius: 12, alignItems: 'center', borderWidth: 1, borderColor: '#cbd5e1' },
   yardimciIsimMetni: { fontSize: 13, fontWeight: '700', color: '#00205B', textAlign: 'center' },
   baskanMesajIcerikKonteyner: { width: '100%', marginTop: 15, paddingHorizontal: 10, paddingTop: 5 },
-  baskanMesajTekstHizalama: { fontSize: 14, color: '#334155', lineHeight: `22`, textAlign: 'justify', fontWeight: '500', fontFamily: 'sans-serif' },
+  baskanMesajTekstHizalama: { fontSize: 14, color: '#334155', lineHeight: 22, textAlign: 'justify', fontWeight: '500', fontFamily: 'sans-serif' },
   dropdownMenuKonteynerGenisletilmis: { backgroundColor: '#fff', width: 520, maxWidth: '95%', padding: 20, borderRadius: 16, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 10, elevation: 5 },
   kategoriYonetimEsnekSatiri: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 1, borderBottomColor: '#f1f5f9', paddingRight: 4 },
   katKucukButonGrupKapsul: { flexDirection: 'row', gap: 6, alignItems: 'center', width: 'auto' },
