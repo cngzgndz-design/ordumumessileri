@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Ordu Mümessilleri",
-    "slug": "ordumumessilleri",
-    "version": "1.1.9",
+    "name": "Mümessil İndirim",
+    "slug": "ordumumessileri",
+    "version": "1.2.1",
     "orientation": "default",
     "icon": "./assets/logo.png",
     "userInterfaceStyle": "light",
@@ -10,7 +10,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.cngzgndz.ordumumessilleri",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSPhotoLibraryUsageDescription": "Yönetici paneli üzerinden kadro ve profil görsellerini güncelleyebilmek için fotoğraf kütüphanesine erişim gereklidir (örneğin: ekip üyelerinden birinin fotoğrafını seçip yüklemek için)."
       }
     },
     "android": {
@@ -19,7 +20,7 @@
         "foregroundImage": "./assets/logo.png"
       },
       "package": "com.cengizgunduz.ordumumessilleri",
-      "versionCode": 20
+      "versionCode": 22
     },
     "web": {
       "favicon": "./assets/logo.png"
@@ -49,7 +50,7 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "b63aa912-6bcc-4c56-97e2-f76be7fbe0ac"
+        "projectId": "a25c8f82-1b16-4584-9ce3-997080281a40"
       }
     }
   }
