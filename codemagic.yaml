@@ -5,7 +5,6 @@ workflows:
     environment:
       node: latest
       xcode: latest
-      android_sdk: latest
     scripts:
       - name: Install dependencies
         script: |
