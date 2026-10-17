@@ -1,18 +1,21 @@
 workflows:
-  react-native-android:
-    name: React Native Android Release
+  android-release:
+    name: Android Release Workflow
     max_build_duration: 60
     environment:
       node: latest
-      npm: latest
+      xcode: latest
+      android_sdk: latest
     scripts:
       - name: Install dependencies
         script: |
           npm install
+      - name: Generate Android native project
+        script: |
+          npx expo prebuild --platform android --clean
       - name: Build Android App Bundle (AAB)
         script: |
-          npx eas build --platform android --profile production --non-interactive
+          cd android
+          ./gradlew bundleRelease
     artifacts:
       - android/app/build/outputs/bundle/release/*.aab
-      - build/**/*.aab
-      - dist/**/*.aab
