@@ -14,7 +14,7 @@ workflows:
       - name: Generate Android native project
         script: |
           npx expo prebuild --platform android --clean
-      - name: Inject Keystore
+      - name: Inject Keystore & Configure Signing
         script: |
           # 1. Base64 keystore'u çözüp android/app içine kaydediyoruz
           echo $CM_KEYSTORE | base64 --decode > android/app/release.keystore
@@ -26,6 +26,39 @@ workflows:
           echo "MYAPP_UPLOAD_STORE_PASSWORD=$CM_KEYSTORE_PASSWORD" >> gradle.properties
           echo "MYAPP_UPLOAD_KEY_ALIAS=$CM_KEY_ALIAS" >> gradle.properties
           echo "MYAPP_UPLOAD_KEY_PASSWORD=$CM_KEY_PASSWORD" >> gradle.properties
+
+          # 3. build.gradle dosyasına güvenli bir şekilde signingConfigs ekliyoruz
+          cd app
+          node -e '
+            const fs = require("fs");
+            let content = fs.readFileSync("build.gradle", "utf8");
+            
+            const signingConfigBlock = `
+            signingConfigs {
+                release {
+                    storeFile file(MYAPP_UPLOAD_STORE_FILE)
+                    storePassword MYAPP_UPLOAD_STORE_PASSWORD
+                    keyAlias MYAPP_UPLOAD_KEY_ALIAS
+                    keyPassword MYAPP_UPLOAD_KEY_PASSWORD
+                }
+            }`;
+            
+            // android { bloğunun içine ekle
+            content = content.replace("android {", "android {" + signingConfigBlock);
+            
+            // buildTypes release içine signingConfig ekle
+            content = content.replace(
+                /buildTypes\s*\{[^}]*release\s*\{([^}]*)\}/s,
+                (match, group1) => {
+                    if (!group1.includes("signingConfig")) {
+                        return match.replace("release {", "release {\n        signingConfig signingConfigs.release");
+                    }
+                    return match;
+                }
+            );
+            
+            fs.writeFileSync("build.gradle", content, "utf8");
+          '
       - name: Build Android App Bundle (AAB)
         script: |
           cd android
