@@ -3,7 +3,7 @@ import * as Sharing from 'expo-sharing';
 import * as DocumentPicker from 'expo-document-picker';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Modal, Linking, Platform, Image, Alert, Switch, SafeAreaView } from 'react-native';
 import { initializeApp, getApp } from 'firebase/app';
 import { getApps } from 'firebase/app';
@@ -18,7 +18,7 @@ let BannerAd = null;
 let BannerAdSize = null;
 let TestIds = null;
 
-  if (REKLAMLARI_AKTIF_ET && Platform.OS !== 'web') {
+if (REKLAMLARI_AKTIF_ET && Platform.OS !== 'web') {
   try {
     const ads = require('react-native-google-mobile-ads');
     BannerAd = ads.BannerAd;
@@ -32,13 +32,13 @@ let TestIds = null;
 const adUnitId = (__DEV__ && typeof TestIds !== 'undefined' && TestIds !== null) ? TestIds.BANNER : 'ca-app-pub-8577494064582289/4504789547';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDyDyTUpsPc8C60cgt3kNWs3kFCY_6x9J0",
-  authDomain: "ordumumessilleri.firebaseapp.com",
-  projectId: "ordumumessilleri",
-  storageBucket: "ordumumessilleri.firebasestorage.app",
-  messagingSenderId: "235964320544",
-  appId: "1:235964320544:web:1e7c0c54fc33c27a85a545",
-  measurementId: "G-9ZXQVQ2TZ4"
+ apiKey: "AIzaSyDyDyTUpsPc8C60cgt3kNWs3kFCY_6x9J0",
+ authDomain: "ordumumessilleri.firebaseapp.com",
+ projectId: "ordumumessilleri",
+ storageBucket: "ordumumessilleri.firebasestorage.app",
+ messagingSenderId: "235964320544",
+ appId: "1:235964320544:web:1e7c0c54fc33c27a85a545",
+ measurementId: "G-9ZXQVQ2TZ4"
 };
 
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
@@ -121,7 +121,7 @@ const TURKIYE_ILLERI_VE_ILCELERI = {
   "Ordu": ["Akkuş", "Altınordu", "Aybastı", "Çamaş", "Çatalpınar", "Çaybaşı", "Fatsa", "Gölköy", "Gülyalı", "Gürgentepe", "İkizce", "Kabadüz", "Kabataş", "Korgan", "Kumru", "Mesudiye", "Perşembe", "Ulubey", "Ünye"],
   "Osmaniye": ["Bahçe", "Düziçi", "Hasanbeyli", "Kadirli", "Merkez", "Sumbas", "Toprakkale"],
   "Rize": ["Ardeşen", "Çamlıhemşin", "Çayeli", "Derepazarı", "Fındıklı", "Güneysu", "Hemşin", "İkizdere", "İyidere", "Kalkandere", "Merkez", "Pazar"],
-  "Sakarya": ["Adapazarı", "Akyazı", "Arifiye", "Erenler", "Ferizli", "Geyve", "Hendek", "Karapürçek", "Karasu", "Kaynarca", "Kocaali", "Pamukova", "Sapanca", "Serdivan", "Söğütlü", "Taraklı"],
+  "Sakarya": ["Adapazarı", "Akyazi", "Arifiye", "Erenler", "Ferizli", "Geyve", "Hendek", "Karapürçek", "Karasu", "Kaynarca", "Kocaali", "Pamukova", "Sapanca", "Serdivan", "Söğütlü", "Taraklı"],
   "Samsun": ["Alaçam", "Asarcık", "Atakum", "Ayvacık", "Bafra", "Canik", "Çarşamba", "Havza", "Kavak", "Ladik", "Ondokuzmayıs", "Salıpazarı", "Tekkeköy", "Terme", "Vezirköprü", "Yakakent"],
   "Siirt": ["Baykan", "Eruh", "Kurtalan", "Merkez", "Pervari", "Şirvan"],
   "Sinop": ["Ayancık", "Boyabat", "Dikmen", "Durağan", "Erfelek", "Gerze", "Merkez", "Saraydüzü", "Türkeli"],
@@ -147,6 +147,7 @@ export default function App() {
   const [tamEkranGorsel, setTamEkranGorsel] = useState(null);
   const [sponsorReklamlar, setSponsorReklamlar] = useState([]);
   const [defaultBannerAktifMi, setDefaultBannerAktifMi] = useState(true);
+  const [googleAdsBannerAktifMi, setGoogleAdsBannerAktifMi] = useState(false);
 
   const [indirimFiltreAcikMi, setIndirimFiltreAcikMi] = useState(false);
 
@@ -233,7 +234,6 @@ export default function App() {
   const [sosyalEposta, setSosyalEposta] = useState('');
   const [sosyalAdres, setSosyalAdres] = useState('');
 
-  // YENİ: Sosyal medya ve iletişim alanları için aktiflik (gösterim tikleri) state'leri
   const [sosyalAdresAktifMi, setSosyalAdresAktifMi] = useState(true);
   const [sosyalEpostaAktifMi, setSosyalEpostaAktifMi] = useState(true);
   const [sosyalFacebookAktifMi, setSosyalFacebookAktifMi] = useState(true);
@@ -248,6 +248,78 @@ export default function App() {
   const [pasifOlanlarAcikMi, setPasifOlanlarAcikMi] = useState(false);
 
   const yedekYukleFileInputRef = useRef(null);
+
+  useEffect(() => {
+    const oturumKontrolEt = async () => {
+      try {
+        const kayitliKullanici = await AsyncStorage.getItem('@giris_yapan_uye');
+        if (kayitliKullanici) {
+          const parsedUser = JSON.parse(kayitliKullanici);
+          setGirisYapmisKullanici(parsedUser);
+          setProfilAdSoyadGuncelle(parsedUser.adSoyad || '');
+          setProfilTelefonGuncelle(parsedUser.telefon || '');
+        }
+      } catch (e) {
+        console.log("Oturum okunurken hata:", e);
+      }
+    };
+    oturumKontrolEt();
+  }, []);
+
+  useEffect(() => {
+    const unsub1 = onSnapshot(query(collection(db, "isletmeler"), orderBy("eklenmeTarihi", "desc")), (snap) => {
+      const arr = []; snap.forEach(d => arr.push({ id: d.id, ...d.data() })); setIsletmeler(arr);
+    });
+    const unsubOnay = onSnapshot(query(collection(db, "onaybekleyenler"), orderBy("eklenmeTarihi", "desc")), (snap) => {
+      const arr = []; snap.forEach(d => arr.push({ id: d.id, ...d.data() })); setOnayBekleyenler(arr);
+    });
+    const unsub2 = onSnapshot(query(collection(db, "kategoriler"), orderBy("name", "asc")), (snap) => {
+      const arr = []; snap.forEach(d => arr.push({ id: d.id, ...d.data() })); setKategoriler(arr);
+    });
+    const unsub3 = onSnapshot(query(collection(db, "sponsorlar"), orderBy("eklenmeTarihi", "desc")), (snap) => {
+      const arr = []; snap.forEach(d => arr.push({ id: d.id, ...d.data() })); setSponsorReklamlar(arr);
+    });
+    const unsub4 = onSnapshot(doc(db, "ayarlar", "reklamayar"), (d) => {
+      if (d.exists()) {
+        const dat = d.data();
+        if (typeof dat.defaultBannerAktif === 'boolean') {
+          setDefaultBannerAktifMi(dat.defaultBannerAktif);
+        }
+        if (typeof dat.googleAdsBannerAktif === 'boolean') {
+          setGoogleAdsBannerAktifMi(dat.googleAdsBannerAktif);
+        }
+      }
+    });
+    const unsub6 = onSnapshot(doc(db, "ayarlar", "sosyalmedya"), (d) => {
+      if (d.exists()) {
+        const dat = d.data();
+        setSosyalAdres(dat.adres || '');
+        setSosyalFacebook(dat.facebook || '');
+        setSosyalTwitter(dat.twitter || '');
+        setSosyalInstagram(dat.instagram || '');
+        setSosyalLinkedin(dat.linkedin || '');
+        setSosyalWhatsapp(dat.whatsapp || '');
+        setSosyalEposta(dat.eposta || '');
+
+        setSosyalAdresAktifMi(dat.adresAktif !== false);
+        setSosyalEpostaAktifMi(dat.epostaAktif !== false);
+        setSosyalFacebookAktifMi(dat.facebookAktif !== false);
+        setSosyalTwitterAktifMi(dat.twitterAktif !== false);
+        setSosyalInstagramAktifMi(dat.instagramAktif !== false);
+        setSosyalLinkedinAktifMi(dat.linkedinAktif !== false);
+        setSosyalWhatsappAktifMi(dat.whatsappAktif !== false);
+      }
+    });
+
+    return () => { 
+      unsub1(); 
+      unsubOnay(); 
+      unsub2(); 
+      unsub3(); 
+      unsub4(); 
+      unsub6(); 
+    };
+  }, []);
 
   useEffect(() => {
     if (girisYapmisKullanici && girisYapmisKullanici.id) {
@@ -484,7 +556,11 @@ export default function App() {
           kayitTarihi: getFormatliTarihStr()
         };
         const docRef = await addDoc(collection(db, "uyeler"), yeniUyeVerisi);
-        setGirisYapmisKullanici({ id: docRef.id, adSoyad: authAdSoyad.trim(), email: authEmail.trim(), telefon: authTelefon.trim() });
+        const olusturulanUye = { id: docRef.id, adSoyad: authAdSoyad.trim(), email: authEmail.trim(), telefon: authTelefon.trim() };
+        
+        setGirisYapmisKullanici(olusturulanUye);
+        await AsyncStorage.setItem('@giris_yapan_uye', JSON.stringify(olusturulanUye));
+
         setProfilAdSoyadGuncelle(authAdSoyad.trim());
         setProfilTelefonGuncelle(authTelefon.trim() || '');
         setProfilSifreGuncelle('');
@@ -504,6 +580,8 @@ export default function App() {
 
         if (bulunanUye) {
           setGirisYapmisKullanici(bulunanUye);
+          await AsyncStorage.setItem('@giris_yapan_uye', JSON.stringify(bulunanUye));
+
           setProfilAdSoyadGuncelle(bulunanUye.adSoyad || '');
           setProfilTelefonGuncelle(bulunanUye.telefon || '');
           setProfilSifreGuncelle('');
@@ -532,34 +610,60 @@ export default function App() {
         guncellemeVerisi.sifre = sifrele(profilSifreGuncelle.trim());
       }
       await updateDoc(doc(db, "uyeler", girisYapmisKullanici.id), guncellemeVerisi);
-      setGirisYapmisKullanici(prev => ({ ...prev, adSoyad: profilAdSoyadGuncelle.trim(), telefon: profilTelefonGuncelle.trim() }));
+      
+      const guncelUyeObjesi = { ...girisYapmisKullanici, adSoyad: profilAdSoyadGuncelle.trim(), telefon: profilTelefonGuncelle.trim() };
+      setGirisYapmisKullanici(guncelUyeObjesi);
+      await AsyncStorage.setItem('@giris_yapan_uye', JSON.stringify(guncelUyeObjesi));
+
       setProfilSifreGuncelle('');
-      Alert.alert("Başarılı", "✅ Profil bilgileriniz başarıyla güncellendi!");
+      
+      if (Platform.OS === 'web') {
+        window.alert("✅ Profil bilgileriniz başarıyla güncellendi!");
+      } else {
+        Alert.alert("Başarılı", "✅ Profil bilgileriniz başarıyla güncellendi!");
+      }
     } catch (e) {
-      Alert.alert("Hata", "Güncelleme hatası: " + e.message);
+      if (Platform.OS === 'web') {
+        window.alert("Hata: " + e.message);
+      } else {
+        Alert.alert("Hata", "Güncelleme hatası: " + e.message);
+      }
     }
   };
 
+  // 📌 DÜZELTİLEN KISIM: Web ve Mobil uyumlu kalıcı üyelik silme fonksiyonu
   const uveyiSil = async () => {
     if (!girisYapmisKullanici || !girisYapmisKullanici.id) return;
     
-    Alert.alert("Hesabı Sil", "Üyeliğinizi kalıcı olarak silmek istediğinize emin misiniz?", [
-      { text: "İptal", style: "cancel" },
-      { 
-        text: "Evet, Sil", 
-        style: "destructive", 
-        onPress: async () => {
-          try {
-            await deleteDoc(doc(db, "uyeler", girisYapmisKullanici.id));
-            setGirisYapmisKullanici(null);
-            setProfilModalAcikMi(false);
-            Alert.alert("Bilgi", "Hesabınız ve üyelik kaydınız veritabanından silindi.");
-          } catch (e) {
-            Alert.alert("Hata", "Üyelik silinirken hata oluştu: " + e.message);
-          }
-        } 
+    const silinsinMi = Platform.OS === 'web' 
+      ? window.confirm("Üyeliğinizi kalıcı olarak silmek istediğinize emin misiniz?")
+      : await new Promise((resolve) => {
+          Alert.alert("Hesabı Sil", "Üyeliğinizi kalıcı olarak silmek istediğinize emin misiniz?", [
+            { text: "İptal", onPress: () => resolve(false), style: "cancel" },
+            { text: "Evet, Sil", onPress: () => resolve(true), style: "destructive" }
+          ]);
+        });
+
+    if (!silinsinMi) return;
+
+    try {
+      await deleteDoc(doc(db, "uyeler", girisYapmisKullanici.id));
+      await AsyncStorage.removeItem('@giris_yapan_uye');
+      setGirisYapmisKullanici(null);
+      setProfilModalAcikMi(false);
+      
+      if (Platform.OS === 'web') {
+        window.alert("Hesabınız ve üyelik kaydınız veritabanından silindi.");
+      } else {
+        Alert.alert("Bilgi", "Hesabınız ve üyelik kaydınız veritabanından silindi.");
       }
-    ]);
+    } catch (e) {
+      if (Platform.OS === 'web') {
+        window.alert("Üyelik silinirken hata oluştu: " + e.message);
+      } else {
+        Alert.alert("Hata", "Üyelik silinirken hata oluştu: " + e.message);
+      }
+    }
   };
 
   const yeniBannerFormunuAcVeyaKapat = () => {
@@ -772,7 +876,6 @@ export default function App() {
         if (!result.canceled && result.assets && result.assets.length > 0) {
           const asset = result.assets[0];
           
-          // Eğer seçilen dosya PDF ise boyut kontrolü yap
           if (asset.mimeType === 'application/pdf') {
             const response = await fetch(asset.uri);
             const blob = await response.blob();
@@ -782,7 +885,6 @@ export default function App() {
             }
           }
 
-          // Görsel dosyaları için kaliteyi bozmadan 1 MB altına otomatik sıkıştırma ve boyutlandırma
           const img = new window.Image();
           img.src = asset.uri;
           img.onload = () => {
@@ -812,7 +914,6 @@ export default function App() {
             let kalite = 0.85;
             let compressedDataUrl = canvas.toDataURL('image/jpeg', kalite);
 
-            // 1 MB (1,048,576 bayt) altına inene kadar kaliteyi kademeli düşür
             while (compressedDataUrl.length > 1048576 * 1.37 && kalite > 0.1) {
               kalite -= 0.1;
               compressedDataUrl = canvas.toDataURL('image/jpeg', kalite);
@@ -863,6 +964,7 @@ export default function App() {
       }
     ]);
   };
+
   async function dosyayiSistemeYukleMobil(setImageState) {
     if (Platform.OS === 'web') {
       try {
@@ -1005,7 +1107,11 @@ export default function App() {
   const uyeKurumBasvurusuGonder = async () => {
     setKurumEkleHatasi('');
     if (!girisYapmisKullanici) {
-      Alert.alert("Uyarı", "Oturum bulunamadı. Lütfen tekrar giriş yapın.");
+      if (Platform.OS === 'web') {
+        window.alert("Oturum bulunamadı. Lütfen tekrar giriş yapın.");
+      } else {
+        Alert.alert("Uyarı", "Oturum bulunamadı. Lütfen tekrar giriş yapın.");
+      }
       setUyeKurumEkleModalAcikMi(false);
       setProfilModalAcikMi(true);
       return;
@@ -1014,10 +1120,16 @@ export default function App() {
     const aktifKategori = yeniKategoriGeciciInput.trim() ? yeniKategoriGeciciInput.trim() : formSeciliKategori;
 
     if(!formKurumAdi || !formAvantajDetayi || !aktifKategori) {
-      Alert.alert("Uyarı", "Lütfen kurum adı, kategori ve avantaj detayını doldurun."); return;
+      if (Platform.OS === 'web') {
+        window.alert("Lütfen kurum adı, kategori ve avantaj detayını doldurun.");
+      } else {
+        Alert.alert("Uyarı", "Lütfen kurum adı, kategori ve avantaj detayını doldurun.");
+      }
+      return;
     }
     if(!dosyaUrl) {
-      setKurumEkleHatasi('⚠️ İlgili belgenin yüklenmesi ZORUNLUDUR! Lütfen belge seçiniz.'); return;
+      setKurumEkleHatasi('⚠️ İlgili belgenin yüklenmesi ZORUNLUDUR! Lütfen belge seçiniz.'); 
+      return;
     }
     const veri = {
       ad: formKurumAdi, 
@@ -1039,9 +1151,20 @@ export default function App() {
       await addDoc(collection(db, "onaybekleyenler"), veri);
       setUyeKurumEkleModalAcikMi(false);
       formuTemizle();
-      Alert.alert("Başarılı", "Kurum başvurunuz yönetici onayına gönderilmiştir. Onaylandıktan sonra yayına alınacaktır.");
+      
+      const basariMesaji = "🚀 Kurum başvurunuz yönetici onayına gönderilmiştir. Onaylandıktan sonra yayına alınacaktır.";
+      if (Platform.OS === 'web') {
+        window.alert(basariMesaji);
+      } else {
+        Alert.alert("Başarılı", basariMesaji);
+      }
     } catch (e) {
-      Alert.alert("Hata", "Başvuru gönderilirken hata oluştu: " + e.message);
+      const hataMesaji = "Başvuru gönderilirken hata oluştu: " + e.message;
+      if (Platform.OS === 'web') {
+        window.alert(hataMesaji);
+      } else {
+        Alert.alert("Hata", hataMesaji);
+      }
     }
   };
 
@@ -1286,7 +1409,7 @@ export default function App() {
     setReklamFormGorsel(s.gorsel || '');
     setReklamFormBaslangic(s.baslangic || '');
     setReklamFormBitis(s.bitis || '');
-    setReklamFormAktif(s.aktif !== false);
+    setReklamFormAktif(s.aktif === true || s.aktif === 'true' || s.aktif === 1 || s.aktif === 'Aktif');
     setReklamDuzenleModalAcikMi(true);
   };
 
@@ -1299,7 +1422,7 @@ export default function App() {
         gorsel: reklamFormGorsel,
         baslangic: reklamFormBaslangic,
         bitis: reklamFormBitis,
-        aktif: reklamFormAktif
+        aktif: Boolean(reklamFormAktif)
       });
       setReklamDuzenleModalAcikMi(false);
       Alert.alert("Başarılı", "Reklam başarıyla güncellendi!");
@@ -1311,6 +1434,13 @@ export default function App() {
     try {
       await setDoc(doc(db, "ayarlar", "reklamayar"), { defaultBannerAktif: yeniDeger }, { merge: true });
     } catch (e) { console.log("Default banner ayar kaydetme hatası:", e); }
+  };
+
+  const googleAdsBannerAyariniKaydet = async (yeniDeger) => {
+    setGoogleAdsBannerAktifMi(yeniDeger);
+    try {
+      await setDoc(doc(db, "ayarlar", "reklamayar"), { googleAdsBannerAktif: yeniDeger }, { merge: true });
+    } catch (e) { console.log("Google Ads banner ayar kaydetme hatası:", e); }
   };
 
   useEffect(() => {
@@ -1341,55 +1471,23 @@ export default function App() {
     }
   }, [isletmeler]);
 
-  useEffect(() => {
-    const unsub1 = onSnapshot(query(collection(db, "isletmeler"), orderBy("eklenmeTarihi", "desc")), (snap) => {
-      const arr = []; snap.forEach(d => arr.push({ id: d.id, ...d.data() })); setIsletmeler(arr);
-    });
-    const unsubOnay = onSnapshot(query(collection(db, "onaybekleyenler"), orderBy("eklenmeTarihi", "desc")), (snap) => {
-      const arr = []; snap.forEach(d => arr.push({ id: d.id, ...d.data() })); setOnayBekleyenler(arr);
-    });
-    const unsub2 = onSnapshot(query(collection(db, "kategoriler"), orderBy("name", "asc")), (snap) => {
-      const arr = []; snap.forEach(d => arr.push({ id: d.id, ...d.data() })); setKategoriler(arr);
-    });
-    const unsub3 = onSnapshot(query(collection(db, "sponsorlar"), orderBy("eklenmeTarihi", "desc")), (snap) => {
-      const arr = []; snap.forEach(d => arr.push({ id: d.id, ...d.data() })); setSponsorReklamlar(arr);
-    });
-    const unsub4 = onSnapshot(doc(db, "ayarlar", "reklamayar"), (d) => {
-      if (d.exists() && typeof d.data().defaultBannerAktif === 'boolean') {
-        setDefaultBannerAktifMi(d.data().defaultBannerAktif);
-      }
-    });
-    const unsub6 = onSnapshot(doc(db, "ayarlar", "sosyalmedya"), (d) => {
-      if (d.exists()) {
-        const dat = d.data();
-        setSosyalAdres(dat.adres || '');
-        setSosyalFacebook(dat.facebook || '');
-        setSosyalTwitter(dat.twitter || '');
-        setSosyalInstagram(dat.instagram || '');
-        setSosyalLinkedin(dat.linkedin || '');
-        setSosyalWhatsapp(dat.whatsapp || '');
-        setSosyalEposta(dat.eposta || '');
-
-        setSosyalAdresAktifMi(dat.adresAktif !== false);
-        setSosyalEpostaAktifMi(dat.epostaAktif !== false);
-        setSosyalFacebookAktifMi(dat.facebookAktif !== false);
-        setSosyalTwitterAktifMi(dat.twitterAktif !== false);
-        setSosyalInstagramAktifMi(dat.instagramAktif !== false);
-        setSosyalLinkedinAktifMi(dat.linkedinAktif !== false);
-        setSosyalWhatsappAktifMi(dat.whatsappAktif !== false);
-      }
-    });
-    return () => { unsub1(); unsubOnay(); unsub2(); unsub3(); unsub4(); unsub6(); };
-  }, []);
-
   const aktifSponsorlariFiltrele = () => {
-    const bugun = new Date(); bugun.setHours(0,0,0,0);
+    const bugun = new Date(); 
+    bugun.setHours(0,0,0,0);
+
     return sponsorReklamlar.filter(item => {
-      if (item.aktif === false) return false;
-      if (!item.bitis) return true;
-      const m = item.bitis.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+      const isAktif = item.aktif === true || item.aktif === 'true' || item.aktif === 1 || item.aktif === 'Aktif';
+      if (!isAktif) return false;
+
+      if (!item.bitis || typeof item.bitis !== 'string' || !item.bitis.trim()) return true;
+
+      const m = item.bitis.trim().match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
       if (!m) return true;
-      return new Date(parseInt(m[3]), parseInt(m[2])-1, parseInt(m[1])).getTime() >= bugun.getTime();
+
+      const bitisTarihi = new Date(parseInt(m[3]), parseInt(m[2])-1, parseInt(m[1]));
+      bitisTarihi.setHours(0,0,0,0);
+
+      return bitisTarihi.getTime() >= bugun.getTime();
     });
   };
 
@@ -1480,17 +1578,19 @@ export default function App() {
   const sozlesmesiBitenListesi = sozlesmesiBitenleriFiltrele();
   const pasifOlanlarListesi = pasifOlanlariFiltrele();
 
-  const filtrelenmisUyeIsletmeler = isletmeler.filter(isletme => {
-    if (isletme.aktif === false || isletme.aktifMi === false) return false; 
-    const ilUygun = seciliIlFiltre === 'Hepsi' || (isletme.il && isletme.il.toLowerCase() === seciliIlFiltre.toLowerCase());
-    const ilceUygun = seciliIlceFiltre === 'Hepsi' || (isletme.ilce && isletme.ilce.toLowerCase() === seciliIlceFiltre.toLowerCase());
-    const katUygun = seciliKategoriFiltre === 'Hepsi' || (isletme.kategori && isletme.kategori.toLowerCase() === seciliKategoriFiltre.toLowerCase());
-    const favoriUygun = !sadeceFavorilerGelsinMi || favoriKurumlar.includes(isletme.id);
-    const aramaUygun = (isletme.ad || '').toLowerCase().includes(uyeAramaMetni.toLowerCase()) || 
-                       (isletme.ilce || '').toLowerCase().includes(uyeAramaMetni.toLowerCase()) || 
-                       (isletme.il || '').toLowerCase().includes(uyeAramaMetni.toLowerCase());
-    return ilUygun && ilceUygun && katUygun && favoriUygun && aramaUygun;
-  });
+  const filtrelenmisUyeIsletmeler = useMemo(() => {
+    return isletmeler.filter(isletme => {
+      if (isletme.aktif === false || isletme.aktifMi === false) return false; 
+      const ilUygun = seciliIlFiltre === 'Hepsi' || (isletme.il && isletme.il.toLowerCase() === seciliIlFiltre.toLowerCase());
+      const ilceUygun = seciliIlceFiltre === 'Hepsi' || (isletme.ilce && isletme.ilce.toLowerCase() === seciliIlceFiltre.toLowerCase());
+      const katUygun = seciliKategoriFiltre === 'Hepsi' || (isletme.kategori && isletme.kategori.toLowerCase() === seciliKategoriFiltre.toLowerCase());
+      const favoriUygun = !sadeceFavorilerGelsinMi || favoriKurumlar.includes(isletme.id);
+      const aramaUygun = (isletme.ad || '').toLowerCase().includes(uyeAramaMetni.toLowerCase()) || 
+                         (isletme.ilce || '').toLowerCase().includes(uyeAramaMetni.toLowerCase()) || 
+                         (isletme.il || '').toLowerCase().includes(uyeAramaMetni.toLowerCase());
+      return ilUygun && ilceUygun && katUygun && favoriUygun && aramaUygun;
+    });
+  }, [isletmeler, seciliIlFiltre, seciliIlceFiltre, seciliKategoriFiltre, sadeceFavorilerGelsinMi, favoriKurumlar, uyeAramaMetni]);
 
   const parsedLimit = parseInt(uyeLimitInput);
   const uyeLimit = (!uyeLimitInput || isNaN(parsedLimit) || parsedLimit <= 0) 
@@ -1500,25 +1600,27 @@ export default function App() {
   const uyeToplamSayfa = Math.ceil(filtrelenmisUyeIsletmeler.length / (uyeLimit || 1)) || 1;
   const sayfalanmisUyeIsletmeler = filtrelenmisUyeIsletmeler.slice((uyeMevcutSayfa - 1) * (uyeLimit || filtrelenmisUyeIsletmeler.length), (uyeMevcutSayfa - 1) * (uyeLimit || filtrelenmisUyeIsletmeler.length) + (uyeLimit || filtrelenmisUyeIsletmeler.length));
 
-  const filtrelenmisAdminIsletmeler = isletmeler.filter(isletme => {
-    if (isletme.aktifMi === false) return false; 
-    
-    if (isletme.bitis) {
-      const m = isletme.bitis.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
-      if (m) {
-        const bugun = new Date(); bugun.setHours(0,0,0,0);
-        const bitisTarihi = new Date(parseInt(m[3]), parseInt(m[2])-1, parseInt(m[1]));
-        if (bitisTarihi.getTime() < bugun.getTime()) {
-          return false; 
+  const filtrelenmisAdminIsletmeler = useMemo(() => {
+    return isletmeler.filter(isletme => {
+      if (isletme.aktifMi === false) return false; 
+      
+      if (isletme.bitis) {
+        const m = isletme.bitis.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+        if (m) {
+          const bugun = new Date(); bugun.setHours(0,0,0,0);
+          const bitisTarihi = new Date(parseInt(m[3]), parseInt(m[2])-1, parseInt(m[1]));
+          if (bitisTarihi.getTime() < bugun.getTime()) {
+            return false; 
+          }
         }
       }
-    }
 
-    const ilUygun = adminSeciliIl === 'Hepsi' || (isletme.il && isletme.il.toLowerCase() === adminSeciliIl.toLowerCase());
-    const ilceUygun = adminSeciliIlce === 'Hepsi' || (isletme.ilce && isletme.ilce.toLowerCase() === adminSeciliIlce.toLowerCase());
-    const katUygun = adminSeciliKat === 'Hepsi' || (isletme.kategori && isletme.kategori.toLowerCase() === adminSeciliKat.toLowerCase());
-    return ilUygun && ilceUygun && katUygun;
-  });
+      const ilUygun = adminSeciliIl === 'Hepsi' || (isletme.il && isletme.il.toLowerCase() === adminSeciliIl.toLowerCase());
+      const ilceUygun = adminSeciliIlce === 'Hepsi' || (isletme.ilce && isletme.ilce.toLowerCase() === adminSeciliIlce.toLowerCase());
+      const katUygun = adminSeciliKat === 'Hepsi' || (isletme.kategori && isletme.kategori.toLowerCase() === adminSeciliKat.toLowerCase());
+      return ilUygun && ilceUygun && katUygun;
+    });
+  }, [isletmeler, adminSeciliIl, adminSeciliIlce, adminSeciliKat]);
 
   const parsedAdminLimit = parseInt(adminLimitInput);
   const adminLimit = (!adminLimitInput || isNaN(parsedAdminLimit) || parsedAdminLimit <= 0)
@@ -1544,6 +1646,16 @@ export default function App() {
         {Platform.OS === 'web' && (
           <View style={{ position: 'absolute', width: 0, height: 0, opacity: 0, overflow: 'hidden' }}>
             <input type="file" ref={yedekYukleFileInputRef} onChange={yedekYukleWeb} accept=".json" />
+          </View>
+        )}
+
+        {googleAdsBannerAktifMi && REKLAMLARI_AKTIF_ET && Platform.OS !== 'web' && BannerAd && BannerAdSize && (
+          <View style={{ width: '100%', alignItems: 'center', marginVertical: 8 }}>
+            <BannerAd
+              unitId={adUnitId}
+              size={BannerAdSize.BANNER}
+              requestOptions={{ requestNonPersonalizedAdsOnly: true }}
+            />
           </View>
         )}
 
@@ -1671,10 +1783,10 @@ export default function App() {
                 <View style={{ width: '100%' }}>
                   <TextInput style={styles.aramaBar} placeholder="İşletme adı ile ara..." placeholderTextColor="#777" value={uyeAramaMetni} onChangeText={setUyeAramaMetni} />
 
-                  <View style={styles.manuelLimitSatiri}>
+                  <div style={styles.manuelLimitSatiri}>
                     <Text style={{ fontSize: 12, fontWeight: '600', flex: 2, color: '#333' }}>Sayfa Başına Gösterim:</Text>
                     <TextInput style={styles.manuelLimitInputKutusu} value={uyeLimitInput} onChangeText={setUyeLimitInput} keyboardType="numeric" />
-                  </View>
+                  </div>
 
                   {sayfalanmisUyeIsletmeler.length > 0 ? (
                     sayfalanmisUyeIsletmeler.map(item => {
@@ -1914,7 +2026,7 @@ export default function App() {
                     <Text style={{ fontWeight: 'bold', fontSize: 16, color: '#475569' }}>{sozlesmesiBitenlerAcikMi ? '➖' : '➕'}</Text>
                   </TouchableOpacity>
 
-                 {sozlesmesiBitenlerAcikMi && (
+                  {sozlesmesiBitenlerAcikMi && (
                     <View style={{ marginTop: 15 }}>
                       <Text style={{ fontSize: 11, color: '#64748b', marginBottom: 10, fontWeight: '600' }}>ℹ️ Aşağıdaki kurumların sözleşme süresi dolmuş olup süre uzatılması beklenmektedir.</Text>
                       {sozlesmesiBitenListesi.length > 0 ? (
@@ -2134,10 +2246,10 @@ export default function App() {
                     </TouchableOpacity>
                   </View>
 
-                  <View style={styles.manuelLimitSatiri}>
+                  <div style={styles.manuelLimitSatiri}>
                     <Text style={{ fontSize: 12, fontWeight: '600', flex: 2, color: '#333' }}>Sayfa Başına Gösterim:</Text>
                     <TextInput style={styles.manuelLimitInputKutusu} value={adminLimitInput} onChangeText={setAdminLimitInput} keyboardType="numeric" />
-                  </View>
+                  </div>
 
                   {sayfalanmisAdminIsletmeler.length > 0 ? (
                     sayfalanmisAdminIsletmeler.map(item => (
@@ -2263,7 +2375,12 @@ export default function App() {
                     <Text style={styles.kaydetButonYazi}>💾 Bilgileri Güncelle</Text>
                   </TouchableOpacity>
 
-                  <TouchableOpacity style={[styles.kaydetButon, { backgroundColor: '#64748b', marginTop: 0, marginBottom: 15 }]} onPress={() => { setGirisYapmisKullanici(null); setProfilModalAcikMi(false); Alert.alert("Bilgi", "Oturum kapatıldı."); }}>
+                  <TouchableOpacity style={[styles.kaydetButon, { backgroundColor: '#64748b', marginTop: 0, marginBottom: 15 }]} onPress={async () => { 
+                    await AsyncStorage.removeItem('@giris_yapan_uye');
+                    setGirisYapmisKullanici(null); 
+                    setProfilModalAcikMi(false); 
+                    Alert.alert("Bilgi", "Oturum kapatıldı."); 
+                  }}>
                     <Text style={styles.kaydetButonYazi}>Oturumu Kapat</Text>
                   </TouchableOpacity>
 
@@ -2527,14 +2644,31 @@ export default function App() {
                 </TouchableOpacity>
               </View>
 
-              <ScrollView style={{ maxHeight: 400 }}>
+              <ScrollView style={{ maxHeight: 400 }} nestedScrollEnabled={true}>
+                
+                <View style={{ backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#cbd5e1', borderRadius: 10, padding: 10, marginBottom: 12 }}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <View style={{ flex: 1, marginRight: 10 }}>
+                      <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#00205B' }}>Google Ads (AdMob) Banner</Text>
+                      <Text style={{ fontSize: 10, color: '#64748b', marginTop: 2 }}>Mobilde Google reklamlarını aç/kapat</Text>
+                    </View>
+                    <Switch 
+                      value={googleAdsBannerAktifMi} 
+                      onValueChange={(val) => googleAdsBannerAyariniKaydet(val)} 
+                    />
+                  </View>
+                </View>
+
                 <View style={{ backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#cbd5e1', borderRadius: 10, padding: 10, marginBottom: 12 }}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                     <View style={{ flex: 1, marginRight: 10 }}>
                       <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#00205B' }}>"Buraya Reklam Verin" Banner'ı</Text>
                       <Text style={{ fontSize: 10, color: '#64748b', marginTop: 2 }}>Boş kaldığında gösterilen çağrı banner'ını aç/kapat</Text>
                     </View>
-                    <Switch value={defaultBannerAktifMi} onValueChange={defaultBannerAyariniKaydet} />
+                    <Switch 
+                      value={defaultBannerAktifMi} 
+                      onValueChange={(val) => defaultBannerAyariniKaydet(val)} 
+                    />
                   </View>
                 </View>
 
@@ -2581,30 +2715,35 @@ export default function App() {
                   </View>
                 )}
 
-                {sponsorReklamlar.map(s => (
-                  <View key={s.id} style={[styles.kart, { padding: 10, marginVertical: 6, backgroundColor: '#f8fafc' }]}>
-                    <View style={styles.kartSol}>
-                      <Text style={styles.kartIsim}>{s.baslik}</Text>
-                      <Text style={styles.tarihEtiket}>Süre: {s.baslangic || '-'} / {s.bitis || 'Süresiz'}</Text>
-                      <View style={{ flexDirection: 'row', gap: 10, marginTop: 4 }}>
-                        <Text style={{ fontSize: 11, color: '#00205B', fontWeight: 'bold' }}>👁️ Gösterim: {s.gosterimSayisi || 0}</Text>
-                        <Text style={{ fontSize: 11, color: '#4B9B28', fontWeight: 'bold' }}>👆 Tıklanma: {s.tiklanmaSayisi || 0}</Text>
+                {sponsorReklamlar.map(s => {
+                  const isAktif = s.aktif === true || s.aktif === 'true' || s.aktif === 1 || s.aktif === 'Aktif';
+                  return (
+                    <View key={s.id} style={[styles.kart, { padding: 10, marginVertical: 6, backgroundColor: '#f8fafc' }]}>
+                      <View style={styles.kartSol}>
+                        <Text style={styles.kartIsim}>{s.baslik}</Text>
+                        <Text style={styles.tarihEtiket}>Süre: {s.baslangic || '-'} / {s.bitis || 'Süresiz'}</Text>
+                        <View style={{ flexDirection: 'row', gap: 10, marginTop: 4 }}>
+                          <Text style={{ fontSize: 11, color: '#00205B', fontWeight: 'bold' }}>👁️ Gösterim: {s.gosterimSayisi || 0}</Text>
+                          <Text style={{ fontSize: 11, color: '#4B9B28', fontWeight: 'bold' }}>👆 Tıklanma: {s.tiklanmaSayisi || 0}</Text>
+                        </View>
+                        <Text style={{ fontSize: 10, color: isAktif ? '#4B9B28' : '#b91c1c', fontWeight: 'bold', marginTop: 2 }}>
+                          {isAktif ? 'Aktif' : 'Pasif'}
+                        </Text>
                       </View>
-                      <Text style={{ fontSize: 10, color: s.aktif !== false ? '#4B9B28' : '#b91c1c', fontWeight: 'bold', marginTop: 2 }}>{s.aktif !== false ? 'Aktif' : 'Pasif'}</Text>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                        <TouchableOpacity style={{ backgroundColor: '#e0f2fe', borderWidth: 1, borderColor: '#bae6fd', paddingVertical: 5, paddingHorizontal: 6, borderRadius: 6 }} onPress={() => sponsorSayaclariSifirla(s.id)}>
+                          <Text style={{ color: '#0369a1', fontSize: 10, fontWeight: 'bold' }}>🔄 Sıfırla</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={{ backgroundColor: '#fef08a', borderWidth: 1, borderColor: '#fde047', padding: 6, borderRadius: 6 }} onPress={() => sponsorDuzenleAc(s)}>
+                          <Text style={{ fontSize: 12 }}>✏️</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={{ backgroundColor: '#fef2f2', borderWidth: 1, borderColor: '#fecaca', padding: 6, borderRadius: 6 }} onPress={() => sponsorSil(s.id)}>
+                          <Text style={{ fontSize: 12 }}>🗑️</Text>
+                        </TouchableOpacity>
+                      </View>
                     </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                      <TouchableOpacity style={{ backgroundColor: '#e0f2fe', borderWidth: 1, borderColor: '#bae6fd', paddingVertical: 5, paddingHorizontal: 6, borderRadius: 6 }} onPress={() => sponsorSayaclariSifirla(s.id)}>
-                        <Text style={{ color: '#0369a1', fontSize: 10, fontWeight: 'bold' }}>🔄 Sıfırla</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity style={{ backgroundColor: '#fef08a', borderWidth: 1, borderColor: '#fde047', padding: 6, borderRadius: 6 }} onPress={() => sponsorDuzenleAc(s)}>
-                        <Text style={{ fontSize: 12 }}>✏️</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity style={{ backgroundColor: '#fef2f2', borderWidth: 1, borderColor: '#fecaca', padding: 6, borderRadius: 6 }} onPress={() => sponsorSil(s.id)}>
-                        <Text style={{ fontSize: 12 }}>🗑️</Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                ))}
+                  );
+                })}
               </ScrollView>
 
               <TouchableOpacity style={[styles.kaydetButon, { backgroundColor: '#00205B', marginTop: 15 }]} onPress={() => setReklamYonetimModalAcikMi(false)}>
@@ -2960,9 +3099,9 @@ const styles = StyleSheet.create({
   inputEtiket: { color: '#334155', fontSize: 12, fontWeight: '600', marginBottom: 6 },
   inputField: { backgroundColor: '#EBF0F5', padding: 10, borderRadius: 8, marginBottom: 10, borderWidth: 1, borderColor: '#cbd5e1', color: '#333' },
   satir: { flexDirection: 'row' },
-  kaydetButon: { backgroundColor: '#00205B', padding: 12, borderRadius: 8, alignItems: 'center', marginTop: 10, cursor: 'pointer' },
+  kaydetButon: { backgroundColor: '#00205B', padding: 12, borderRadius: 8, alignItems: 'center', marginTop: 10 },
   kaydetButonYazi: { color: '#fff', fontWeight: 'bold' },
-  dropdownKutusu: { backgroundColor: '#EBF0F5', height: 40, justifyContent: 'center', paddingHorizontal: 12, borderRadius: 8, marginBottom: 10, borderWidth: 1, borderColor: '#cbd5e1', cursor: 'pointer' },
+  dropdownKutusu: { backgroundColor: '#EBF0F5', height: 40, justifyContent: 'center', paddingHorizontal: 12, borderRadius: 8, marginBottom: 10, borderWidth: 1, borderColor: '#cbd5e1' },
   dropdownKutusuYazisi: { color: '#333', fontSize: 12 },
   modalArkaPlan: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
   dropdownMenuKonteyner: { backgroundColor: '#fff', width: 320, padding: 20, borderRadius: 16 },
