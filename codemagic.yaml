@@ -14,6 +14,18 @@ workflows:
       - name: Generate Android native project
         script: |
           npx expo prebuild --platform android --clean
+      - name: Inject Keystore
+        script: |
+          # Base64 keystore değişkenini çözüp android/app içine release.keystore olarak kaydediyoruz
+          echo $CM_KEYSTORE | base64 --decode > android/app/release.keystore
+          
+          # Gradle imza ayarlarını ekliyoruz
+          cd android
+          echo "" >> gradle.properties
+          echo "MYAPP_UPLOAD_STORE_FILE=release.keystore" >> gradle.properties
+          echo "MYAPP_UPLOAD_STORE_PASSWORD=$CM_KEYSTORE_PASSWORD" >> gradle.properties
+          echo "MYAPP_UPLOAD_KEY_ALIAS=$CM_KEY_ALIAS" >> gradle.properties
+          echo "MYAPP_UPLOAD_KEY_PASSWORD=$CM_KEY_PASSWORD" >> gradle.properties
       - name: Build Android App Bundle (AAB)
         script: |
           cd android
