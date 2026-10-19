@@ -14,13 +14,23 @@
         "NSPhotoLibraryUsageDescription": "Yönetici paneli üzerinden kadro ve profil görsellerini güncelleyebilmek için fotoğraf kütüphanesine erişim gereklidir (örneğin: ekip üyelerinden birinin fotoğrafını seçip yüklemek için)."
       }
     },
-    "android": {
+"android": {
       "adaptiveIcon": {
         "backgroundColor": "#FFFFFF",
         "foregroundImage": "./assets/logo.png"
       },
-      "package": "com.cengizgunduz.ordumumessilleri",
-      "versionCode": 22
+      "package": "com.cengizgunduz.ordumumessileri",
+      "versionCode": 22,
+      "softwareKeyboardLayoutMode": "pan",
+      "intentFilters": [],
+      "useNextNotificationsApi": true,
+      "permissions": [],
+      "gradleProperties": {
+        "MYAPP_UPLOAD_STORE_FILE": "release.keystore",
+        "MYAPP_UPLOAD_STORE_PASSWORD": "",
+        "MYAPP_UPLOAD_KEY_ALIAS": "354a8131dca2a32b42c2a35a3dec7b4c",
+        "MYAPP_UPLOAD_KEY_PASSWORD": ""
+      }
     },
     "web": {
       "favicon": "./assets/logo.png"
