@@ -14,7 +14,7 @@ workflows:
       - name: Generate Android native project
         script: |
           npx expo prebuild --platform android --clean
-      - name: Inject Keystore & Configure Signing
+      - name: Inject Keystore
         script: |
           # 1. Base64 keystore'u çözüp android/app içine kaydediyoruz
           echo $CM_KEYSTORE | base64 --decode > android/app/release.keystore
@@ -26,30 +26,6 @@ workflows:
           echo "MYAPP_UPLOAD_STORE_PASSWORD=$CM_KEYSTORE_PASSWORD" >> gradle.properties
           echo "MYAPP_UPLOAD_KEY_ALIAS=$CM_KEY_ALIAS" >> gradle.properties
           echo "MYAPP_UPLOAD_KEY_PASSWORD=$CM_KEY_PASSWORD" >> gradle.properties
-
-          # 3. build.gradle dosyasına release imza yapılandırmasını ekliyoruz
-          cd app
-          node -e '
-            const fs = require("fs");
-            let content = fs.readFileSync("build.gradle", "utf8");
-            
-            // signingConfigs ekleme
-            const signingConfigBlock = `
-            signingConfigs {
-                release {
-                    storeFile file(MYAPP_UPLOAD_STORE_FILE)
-                    storePassword MYAPP_UPLOAD_STORE_PASSWORD
-                    keyAlias MYAPP_UPLOAD_KEY_ALIAS
-                    keyPassword MYAPP_UPLOAD_KEY_PASSWORD
-                }
-            }`;
-            content = content.replace("android {", "android {" + signingConfigBlock);
-            
-            // buildTypes release içine signingConfig ekleme
-            content = content.replace("release {", "release { signingConfig signingConfigs.release");
-            
-            fs.writeFileSync("build.gradle", content, "utf8");
-          '
       - name: Build Android App Bundle (AAB)
         script: |
           cd android
