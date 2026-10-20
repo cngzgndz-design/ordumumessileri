@@ -11,12 +11,13 @@ workflows:
       - name: Install dependencies
         script: |
           npm install
-      - name: Clean old android folder
+      - name: Clean All Gradle Caches and Build Artifacts
         script: |
-          rm -rf android
-      - name: Generate Android native project
-        script: |
-          npx expo prebuild --platform android --clean --no-install
+          # Gradle ve Expo'nun geçmiş build'lerden bıraktığı tüm eski artıkları temizliyoruz
+          cd android
+          ./gradlew clean
+          rm -rf .gradle app/build build
+          cd ..
       - name: Setup Keystore, Gradle Properties and Local SDK
         script: |
           echo $CM_KEYSTORE | base64 --decode > android/app/release.keystore
@@ -25,12 +26,6 @@ workflows:
           echo "MYAPP_UPLOAD_KEY_ALIAS=$CM_KEY_ALIAS" >> android/gradle.properties
           echo "MYAPP_UPLOAD_KEY_PASSWORD=$CM_KEY_PASSWORD" >> android/gradle.properties
           echo "sdk.dir=$ANDROID_SDK_ROOT" > android/local.properties
-          
-          # build.gradle dosyasına namespace garanti güvencesi ekleyelim
-          BUILD_GRADLE_PATH="android/app/build.gradle"
-          if ! grep -q "namespace 'com.cengizgunduz.ordumumessilleri'" "$BUILD_GRADLE_PATH"; then
-            sed -i 's/defaultConfig {/defaultConfig {\n        namespace "com.cengizgunduz.ordumumessilleri"/g' "$BUILD_GRADLE_PATH"
-          fi
       - name: Build Android App Bundle (AAB)
         script: |
           cd android
