@@ -1,5 +1,6 @@
-package com.mmessilindirim
+package com.cengizgunduz.ordumumessilleri
 
+import com.cengizgunduz.ordumumessilleri.BuildConfig
 import android.app.Application
 import android.content.res.Configuration
 
