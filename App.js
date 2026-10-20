@@ -18,7 +18,7 @@ let BannerAd = null;
 let BannerAdSize = null;
 let TestIds = null;
 
-if (REKLAMLARI_AKTIF_ET && Platform.OS !== 'web') {
+ if (REKLAMLARI_AKTIF_ET && Platform.OS !== 'web') {
   try {
     const ads = require('react-native-google-mobile-ads');
     BannerAd = ads.BannerAd;
