@@ -18,7 +18,7 @@ let BannerAd = null;
 let BannerAdSize = null;
 let TestIds = null;
 
-if (REKLAMLARI_AKTIF_ET && Platform.OS !== 'web') {
+/*if (REKLAMLARI_AKTIF_ET && Platform.OS !== 'web') {
   try {
     const ads = require('react-native-google-mobile-ads');
     BannerAd = ads.BannerAd;
@@ -28,7 +28,7 @@ if (REKLAMLARI_AKTIF_ET && Platform.OS !== 'web') {
     console.log("Reklam modülü yüklenemedi:", e);
   }
 } 
-
+*/
 const adUnitId = (__DEV__ && typeof TestIds !== 'undefined' && TestIds !== null) ? TestIds.BANNER : 'ca-app-pub-8577494064582289/4504789547';
 
 const firebaseConfig = {
