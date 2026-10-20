@@ -1,12 +1,14 @@
 workflows:
   android-release:
     name: Android Release Workflow
-    max_build_duration: 60
+    max_build_duration: 120
     environment:
-      node: latest
-      xcode: latest
       groups:
-        - android_keys
+        - google_play_credentials
+      android_signing:
+        - release_keystore
+      vars:
+        PACKAGE_NAME: "com.cengizgunduz.ordumumessileri"
     scripts:
       - name: Install dependencies
         script: |
@@ -14,16 +16,20 @@ workflows:
       - name: Generate Android native project
         script: |
           npx expo prebuild --platform android --clean
-      - name: Copy Keystore to Android App folder
+      - name: Setup Keystore and Gradle Properties
         script: |
           echo $CM_KEYSTORE | base64 --decode > android/app/release.keystore
+          echo "MYAPP_UPLOAD_STORE_FILE=release.keystore" >> android/gradle.properties
+          echo "MYAPP_UPLOAD_STORE_PASSWORD=$CM_KEYSTORE_PASSWORD" >> android/gradle.properties
+          echo "MYAPP_UPLOAD_KEY_ALIAS=$CM_KEY_ALIAS" >> android/gradle.properties
+          echo "MYAPP_UPLOAD_KEY_PASSWORD=$CM_KEY_PASSWORD" >> android/gradle.properties
       - name: Build Android App Bundle (AAB)
         script: |
           cd android
           ./gradlew bundleRelease \
-          -Pandroid.injected.signing.store.file="$FCI_BUILD_DIR/android/app/release.keystore" \
-          -Pandroid.injected.signing.store.password="$CM_KEYSTORE_PASSWORD" \
-          -Pandroid.injected.signing.key.alias="$CM_KEY_ALIAS" \
-          -Pandroid.injected.signing.key.password="$CM_KEY_PASSWORD"
+            -Pandroid.injected.signing.store.file="$FCI_BUILD_DIR/android/app/release.keystore" \
+            -Pandroid.injected.signing.store.password="$CM_KEYSTORE_PASSWORD" \
+            -Pandroid.injected.signing.key.alias="$CM_KEY_ALIAS" \
+            -Pandroid.injected.signing.key.password="$CM_KEY_PASSWORD"
     artifacts:
       - android/app/build/outputs/bundle/release/*.aab
