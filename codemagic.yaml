@@ -8,7 +8,7 @@ workflows:
       android_signing:
         - release_keystore
       vars:
-        PACKAGE_NAME: "com.cengizgunduz.ordumumessileri"
+        PACKAGE_NAME: "com.cengizgunduz.ordumumessilleri"
     scripts:
       - name: Install dependencies
         script: |
