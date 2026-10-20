@@ -3,8 +3,6 @@ workflows:
     name: Android Release Workflow
     max_build_duration: 120
     environment:
-      groups:
-        - google_play_credentials
       android_signing:
         - ordumumessileri-key
       vars:
