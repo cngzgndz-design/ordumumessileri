@@ -17,6 +17,20 @@ workflows:
       - name: Generate Android native project
         script: |
           npx expo prebuild --platform android --clean --no-install
+      - name: Fix package namespace in native files
+        script: |
+          # MainActivity ve MainApplication dosyalarındaki paket adının ve importların doğru olduğundan emin oluyoruz
+          node -e '
+            const fs = require("fs");
+            const path = "android/app/src/main/java/com/cengizgunduz/ordumumessilleri/MainActivity.kt";
+            if (fs.existsSync(path)) {
+              let content = fs.readFileSync(path, "utf8");
+              if (!content.includes("import com.cengizgunduz.ordumumessilleri.R")) {
+                content = content.replace("package com.cengizgunduz.ordumumessilleri", "package com.cengizgunduz.ordumumessilleri\n\nimport com.cengizgunduz.ordumumessilleri.R");
+                fs.writeFileSync(path, content, "utf8");
+              }
+            }
+          '
       - name: Setup Keystore and Gradle Properties
         script: |
           echo $CM_KEYSTORE | base64 --decode > android/app/release.keystore
