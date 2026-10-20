@@ -17,13 +17,13 @@ workflows:
       - name: Copy Keystore to Android App folder
         script: |
           echo $CM_KEYSTORE | base64 --decode > android/app/release.keystore
-      - name: Build Android App Bundle (AAB)
+      - - name: Build Android App Bundle (AAB)
         script: |
-          cd android
-          ./gradlew bundleRelease \
-            -Pandroid.injected.signing.store.file=release.keystore \
-            -Pandroid.injected.signing.store.password=$CM_KEYSTORE_PASSWORD \
-            -Pandroid.injected.signing.key.alias=$CM_KEY_ALIAS \
-            -Pandroid.injected.signing.key.password=$CM_KEY_PASSWORD
+        cd android
+        ./gradlew bundleRelease \
+          -Pandroid.injected.signing.store.file="$FCI_BUILD_DIR/android/app/release.keystore" \
+          -Pandroid.injected.signing.store.password="$CM_KEYSTORE_PASSWORD" \
+          -Pandroid.injected.signing.key.alias="$CM_KEY_ALIAS" \
+          -Pandroid.injected.signing.key.password="$CM_KEY_PASSWORD"
     artifacts:
       - android/app/build/outputs/bundle/release/*.aab
