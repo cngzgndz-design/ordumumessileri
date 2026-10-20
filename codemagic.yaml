@@ -6,7 +6,7 @@ workflows:
       groups:
         - google_play_credentials
       android_signing:
-        - release_keystore
+        - ordumumessileri-key
       vars:
         PACKAGE_NAME: "com.cengizgunduz.ordumumessilleri"
     scripts:
