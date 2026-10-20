@@ -2,7 +2,7 @@
   "expo": {
     "name": "Mümessil İndirim",
     "slug": "ordumumessileri",
-    "version": "1.2.1",
+    "version": "1.2.2",
     "orientation": "default",
     "icon": "./assets/logo.png",
     "userInterfaceStyle": "light",
@@ -20,7 +20,7 @@
         "foregroundImage": "./assets/logo.png"
       },
       "package": "com.cengizgunduz.ordumumessilleri",
-      "versionCode": 22,
+      "versionCode": 23,
       "softwareKeyboardLayoutMode": "pan",
       "intentFilters": [],
       "useNextNotificationsApi": true,
