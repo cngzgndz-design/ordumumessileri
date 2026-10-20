@@ -17,21 +17,7 @@ workflows:
       - name: Generate Android native project
         script: |
           npx expo prebuild --platform android --clean --no-install
-      - name: Fix package namespace in native files
-        script: |
-          # MainActivity ve MainApplication dosyalarındaki paket adının ve importların doğru olduğundan emin oluyoruz
-          node -e '
-            const fs = require("fs");
-            const path = "android/app/src/main/java/com/cengizgunduz/ordumumessilleri/MainActivity.kt";
-            if (fs.existsSync(path)) {
-              let content = fs.readFileSync(path, "utf8");
-              if (!content.includes("import com.cengizgunduz.ordumumessilleri.R")) {
-                content = content.replace("package com.cengizgunduz.ordumumessilleri", "package com.cengizgunduz.ordumumessilleri\n\nimport com.cengizgunduz.ordumumessilleri.R");
-                fs.writeFileSync(path, content, "utf8");
-              }
-            }
-          '
-      - name: Setup Keystore and Gradle Properties
+      - name: Setup Keystore, Gradle Properties and Local SDK
         script: |
           echo $CM_KEYSTORE | base64 --decode > android/app/release.keystore
           echo "MYAPP_UPLOAD_STORE_FILE=release.keystore" >> android/gradle.properties
@@ -39,6 +25,12 @@ workflows:
           echo "MYAPP_UPLOAD_KEY_ALIAS=$CM_KEY_ALIAS" >> android/gradle.properties
           echo "MYAPP_UPLOAD_KEY_PASSWORD=$CM_KEY_PASSWORD" >> android/gradle.properties
           echo "sdk.dir=$ANDROID_SDK_ROOT" > android/local.properties
+          
+          # build.gradle dosyasına namespace garanti güvencesi ekleyelim
+          BUILD_GRADLE_PATH="android/app/build.gradle"
+          if ! grep -q "namespace 'com.cengizgunduz.ordumumessilleri'" "$BUILD_GRADLE_PATH"; then
+            sed -i 's/defaultConfig {/defaultConfig {\n        namespace "com.cengizgunduz.ordumumessilleri"/g' "$BUILD_GRADLE_PATH"
+          fi
       - name: Build Android App Bundle (AAB)
         script: |
           cd android
