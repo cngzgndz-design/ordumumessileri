@@ -25,8 +25,8 @@ workflows:
           chmod +x gradlew
           ./gradlew bundleRelease \
             -Pandroid.injected.signing.store.file="$FCI_BUILD_DIR/android/app/release.keystore" \
-            -Pandroid.injected.signing.store.password="" \
-            -Pandroid.injected.signing.key.alias="354a8131dca2a32b42c2a35a3dec7b4c" \
-            -Pandroid.injected.signing.key.password=""
+            -Pandroid.injected.signing.store.password="$CM_KEYSTORE_PASSWORD" \
+            -Pandroid.injected.signing.key.alias="$CM_KEY_ALIAS" \
+            -Pandroid.injected.signing.key.password="$CM_KEY_PASSWORD"
     artifacts:
       - android/app/build/outputs/bundle/release/*.aab
