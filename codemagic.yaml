@@ -1,24 +1,30 @@
 workflows:
-  release-workflow:
-    name: Android Release Build
+  expo-android-release:
+    name: Expo Android Release Workflow
+    max_build_duration: 120
     environment:
       groups:
-        - android_keys # Codemagic panelinde CM_KEYSTORE değişkenini eklediğin grup adı
+        - android_keys
       vars:
-        PACKAGE_NAME: "com.cngzgndz.ordumumessilleri" # Kendi paket adını buraya yazabilirsin
+        PACKAGE_NAME: "com.cengizgunduz.ordumumessileri"
     scripts:
-      - name: Set up keystore
+      - name: Install Node dependencies
         script: |
-          # CM_KEYSTORE değişkenindeki base64 verisini çözerek projeye keystore dosyası olarak ekliyoruz
-          echo $CM_KEYSTORE | base64 --decode > /tmp/release.keystore
-      - name: Build Android App Bundle
+          npm install
+      - name: Setup Keystore
         script: |
-          flutter build appbundle --release \
-            --pub
-    publishing:
-      email:
-        recipients:
-          - cngzgndz@gmail.com # Kendi e-posta adresini yazabilirsin
-      # Codemagic panelinde tanımladığımız release_key referansını buraya bağlıyoruz
-      # Not: Codemagic bu kısım için genelde arayüzdeki Code Signing ayarlarını baz alır, 
-      # ancak script içinde kullanacaksan yolunu /tmp/release.keystore olarak gösterebilirsin.
+          mkdir -p android/app
+          echo $CM_KEYSTORE | base64 --decode > android/app/release.keystore
+      - name: Build Android App Bundle with Expo
+        script: |
+          # Expo projelerinde yerel build için prebuild ve ardından gradle çalıştırılır
+          npx expo prebuild --platform android --clean
+          cd android
+          chmod +x gradlew
+          ./gradlew bundleRelease \
+            -Pandroid.injected.signing.store.file="$FCI_BUILD_DIR/android/app/release.keystore" \
+            -Pandroid.injected.signing.store.password="$CM_KEYSTORE_PASSWORD" \
+            -Pandroid.injected.signing.key.alias="354a8131dca2a32b42c2a35a3dec7b4c" \
+            -Pandroid.injected.signing.key.password="$CM_KEY_PASSWORD"
+    artifacts:
+      - android/app/build/outputs/bundle/release/*.aab
