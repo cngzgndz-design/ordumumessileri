@@ -8,29 +8,22 @@
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.cngzgndz.ordumumessilleri",
+      "bundleIdentifier": "com.cngzgndz.ordumumessileri",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSPhotoLibraryUsageDescription": "Yönetici paneli üzerinden kadro ve profil görsellerini güncelleyebilmek için fotoğraf kütüphanesine erişim gereklidir (örneğin: ekip üyelerinden birinin fotoğrafını seçip yüklemek için)."
       }
     },
-"android": {
+    "android": {
       "adaptiveIcon": {
         "backgroundColor": "#FFFFFF",
         "foregroundImage": "./assets/logo.png"
       },
-      "package": "com.cengizgunduz.ordumumessilleri",
+      "package": "com.cengizgunduz.ordumumessileri",
       "versionCode": 23,
       "softwareKeyboardLayoutMode": "pan",
       "intentFilters": [],
-      "useNextNotificationsApi": true,
-      "permissions": [],
-      "gradleProperties": {
-        "MYAPP_UPLOAD_STORE_FILE": "release.keystore",
-        "MYAPP_UPLOAD_STORE_PASSWORD": "",
-        "MYAPP_UPLOAD_KEY_ALIAS": "354a8131dca2a32b42c2a35a3dec7b4c",
-        "MYAPP_UPLOAD_KEY_PASSWORD": ""
-      }
+      "permissions": []
     },
     "web": {
       "favicon": "./assets/logo.png"
@@ -50,7 +43,10 @@
         {
           "android": {
             "enableProguardInReleaseBuilds": true,
-            "enableMinifyInReleaseBuilds": true
+            "enableMinifyInReleaseBuilds": true,
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35,
+            "minSdkVersion": 24
           },
           "ios": {
             "deploymentTarget": "16.4"
