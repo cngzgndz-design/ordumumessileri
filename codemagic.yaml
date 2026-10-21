@@ -3,8 +3,6 @@ workflows:
     name: Android Release Workflow
     max_build_duration: 120
     environment:
-      android_signing:
-        - ordumumessileri-key
       vars:
         PACKAGE_NAME: "com.cengizgunduz.ordumumessilleri"
     scripts:
@@ -13,7 +11,6 @@ workflows:
           npm install
       - name: Clean All Gradle Caches and Build Artifacts
         script: |
-          # Gradle ve Expo'nun geçmiş build'lerden bıraktığı tüm eski artıkları temizliyoruz
           cd android
           ./gradlew clean
           rm -rf .gradle app/build build
@@ -21,10 +18,6 @@ workflows:
       - name: Setup Keystore, Gradle Properties and Local SDK
         script: |
           echo $CM_KEYSTORE | base64 --decode > android/app/release.keystore
-          echo "MYAPP_UPLOAD_STORE_FILE=release.keystore" >> android/gradle.properties
-          echo "MYAPP_UPLOAD_STORE_PASSWORD=$CM_KEYSTORE_PASSWORD" >> android/gradle.properties
-          echo "MYAPP_UPLOAD_KEY_ALIAS=$CM_KEY_ALIAS" >> android/gradle.properties
-          echo "MYAPP_UPLOAD_KEY_PASSWORD=$CM_KEY_PASSWORD" >> android/gradle.properties
           echo "sdk.dir=$ANDROID_SDK_ROOT" > android/local.properties
       - name: Build Android App Bundle (AAB)
         script: |
