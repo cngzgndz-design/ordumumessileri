@@ -17,7 +17,11 @@ workflows:
           echo $CM_KEYSTORE | base64 --decode > android/app/release.keystore
       - name: Build Android App Bundle with Expo
         script: |
-          # Expo projelerinde yerel build için prebuild ve ardından gradle çalıştırılır
+          # Android 36 SDK ve Build-Tools bileşenlerini güvenli şekilde kur
+          export ANDROID_HOME=$ANDROID_SDK_ROOT
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-36" "build-tools;36.0.0"
+
           npx expo prebuild --platform android --clean
           cd android
           chmod +x gradlew
