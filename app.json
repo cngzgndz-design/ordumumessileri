@@ -40,18 +40,18 @@
       "expo-sharing",
       [
         "expo-build-properties",
-        {
-          "android": {
-            "enableProguardInReleaseBuilds": true,
-            "enableMinifyInReleaseBuilds": true,
-            "compileSdkVersion": 35,
-            "targetSdkVersion": 35,
-            "minSdkVersion": 24
-          },
-          "ios": {
-            "deploymentTarget": "16.4"
-          }
-        }
+     {
+       "android": {
+         "enableProguardInReleaseBuilds": true,
+         "enableMinifyInReleaseBuilds": true,
+         "compileSdkVersion": 36,
+         "targetSdkVersion": 36,
+         "minSdkVersion": 24
+       },
+       "ios": {
+         "deploymentTarget": "16.4"
+       }
+     }
       ]
     ],
     "extra": {
