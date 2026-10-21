@@ -29,6 +29,7 @@ workflows:
       - name: Build Android App Bundle (AAB)
         script: |
           cd android
+          chmod +x gradlew  # <--- BU İZİN KOMUTUNU EKLIYORUZ
           ./gradlew bundleRelease \
             -Pandroid.injected.signing.store.file="$FCI_BUILD_DIR/android/app/release.keystore" \
             -Pandroid.injected.signing.store.password="$CM_KEYSTORE_PASSWORD" \
