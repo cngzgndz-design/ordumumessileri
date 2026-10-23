@@ -6,7 +6,7 @@ workflows:
       groups:
         - android_keys
       vars:
-        PACKAGE_NAME: "com.cengizgunduz.ordumumessileri"
+        PACKAGE_NAME: "com.cengizgunduz.ordumumessilleri"
     scripts:
       - name: Install Node dependencies
         script: |
