@@ -39,3 +39,15 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# Keystore ve Sertifika Dosyaları (Güvenlik için kritik)
+*.keystore
+*.jks
+*.cer
+*.csr
+*.p12
+
+# Geçici veya kişisel dosyalar
+*.txt
+*.jpeg
+*.png
