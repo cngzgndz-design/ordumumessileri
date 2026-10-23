@@ -8,7 +8,7 @@
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.cengizgunduz.ordumumessilleri",
+      "bundleIdentifier": "com.cngzgndz.ordumumessilleri",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSPhotoLibraryUsageDescription": "Yönetici paneli üzerinden kadro ve profil görsellerini güncelleyebilmek için fotoğraf kütüphanesine erişim gereklidir (örneğin: ekip üyelerinden birinin fotoğrafını seçip yüklemek için)."
@@ -19,7 +19,7 @@
         "backgroundColor": "#FFFFFF",
         "foregroundImage": "./assets/logo.png"
       },
-      "package": "com.cengizgunduz.ordumumessileri",
+      "package": "com.cengizgunduz.ordumumessilleri",
       "versionCode": 23,
       "softwareKeyboardLayoutMode": "pan",
       "intentFilters": [],
