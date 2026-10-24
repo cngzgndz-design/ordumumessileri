@@ -890,67 +890,6 @@ export default function App() {
     }
   };
 
-  // Otomatik 1 MB Altına Düşüren Akıllı Görsel/Belge Sıkıştırma Fonksiyonu
-  const otomatikSikistirVeAyarla = async (uri, originalName) => {
-    try {
-      if (Platform.OS === 'web') {
-        const img = new window.Image();
-        img.src = uri;
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
-          const MAX_DIM = 1600;
-          if (width > height) {
-            if (width > MAX_DIM) { height *= MAX_DIM / width; width = MAX_DIM; }
-          } else {
-            if (height > MAX_DIM) { width *= MAX_DIM / height; height = MAX_DIM; }
-          }
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-
-          let kalite = 0.90;
-          let compressedDataUrl = canvas.toDataURL('image/jpeg', kalite);
-          while (compressedDataUrl.length > 1000000 && kalite > 0.1) {
-            kalite -= 0.1;
-            compressedDataUrl = canvas.toDataURL('image/jpeg', kalite);
-          }
-          setDosyaUrl(compressedDataUrl);
-          setDosyaAdi(originalName || "Sikistirilmis_Belge.jpg");
-          setKurumEkleHatasi('');
-        };
-        return;
-      }
-
-      // Mobil için Expo ImageManipulator veya FileSystem tabanlı boyut küçültme
-      const manipResult = await ImagePicker.launchCameraAsync ? null : null; // Standart Base64 okuma ve kalite kontrolü
-      const resp = await fetch(uri);
-      const blob = await resp.blob();
-      
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        let base64data = reader.result;
-        // Eğer 1 MB'tan büyükse kalite düşürerek shrink et
-        if (base64data.length > 1000000) {
-          // Expo Manipulator alternatifi olarak doğrudan base64 ataması veya sıkıştırma
-          setDosyaUrl(base64data);
-        } else {
-          setDosyaUrl(base64data);
-        }
-        setDosyaAdi(originalName || "Secilen_Belge.jpg");
-        setKurumEkleHatasi('');
-      };
-      reader.readAsDataURL(blob);
-    } catch (e) {
-      console.log("Görsel sıkıştırma hatası:", e);
-      setDosyaUrl(uri);
-      setDosyaAdi(originalName || "Belge.jpg");
-      setKurumEkleHatasi('');
-    }
-  };
-
   const sozlesmeBelgesiSec = async (isUyeModal = false) => {
     if (Platform.OS === 'web') {
       try {
@@ -1171,7 +1110,6 @@ export default function App() {
       setKurumEkleHatasi('⚠️ İlgili belgenin yüklenmesi ZORUNLUDUR! Lütfen belge seçiniz.'); return;
     }
     
-    // Firestore 1MB boyut güvenlik kontrolü
     if (dosyaUrl.length > 1048487) {
       setKurumEkleHatasi('⚠️ Seçilen görsel çok büyük (1 MB üzeri). Lütfen daha küçük veya sıkıştırılmış bir görsel seçin.');
       return;
@@ -1259,7 +1197,6 @@ export default function App() {
       return;
     }
 
-    // Firestore 1MB sınır kontrolü
     if (dosyaUrl.length > 1048487) {
       setKurumEkleHatasi('⚠️ Seçilen görsel boyutu 1 MB sınırını aşıyor. Lütfen başka bir görsel seçin.');
       return;
