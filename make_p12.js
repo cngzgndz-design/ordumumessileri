@@ -22,7 +22,7 @@ if (!opensslCmd) {
     process.exit(1);
 }
 
-const password = 'CG1979cg'; // Buraya kendi belirleyeceğin şifreyi yazabilirsin
+const password = 'deneme79'; // Buraya kendi belirleyeceğin şifreyi yazabilirsin
 const command = `"${opensslCmd}" pkcs12 -export -inkey private.key -in ios_distribution.cer -out yeni_distribution.p12 -passout pass:${password}`;
 
 try {
