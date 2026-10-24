@@ -1,10 +1,10 @@
 const { execSync } = require('child_process');
 const fs = require('fs');
 
-// OpenSSL'in Windows üzerinde genellikle bulunduğu yollar
+// Önce resmi OpenSSL-Win64 yolunu kontrol edelim
 const opensslPaths = [
-    'openssl',
     'C:\\Program Files\\OpenSSL-Win64\\bin\\openssl.exe',
+    'openssl',
     'C:\\Program Files\\Git\\usr\\bin\\openssl.exe'
 ];
 
@@ -18,11 +18,12 @@ for (const p of opensslPaths) {
 }
 
 if (!opensslCmd) {
-    console.error("OpenSSL bulunamadı! Lütfen Git Bash OpenSSL yolunu kontrol edin.");
+    console.error("OpenSSL bulunamadı! Lütfen OpenSSL-Win64 yüklü olduğundan emin olun.");
     process.exit(1);
 }
 
-const password = 'deneme79'; // Buraya kendi belirleyeceğin şifreyi yazabilirsin
+const password = 'deneme79'; 
+// OpenSSL 3 uyumlu ve hatasız komut satırı
 const command = `"${opensslCmd}" pkcs12 -export -inkey private.key -in ios_distribution.cer -out yeni_distribution.p12 -passout pass:${password}`;
 
 try {
