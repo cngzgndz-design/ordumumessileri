@@ -66,3 +66,7 @@ workflows:
             -exportPath $FCI_BUILD_DIR/build/ios/ipa
     artifacts:
       - build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
