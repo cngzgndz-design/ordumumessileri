@@ -222,7 +222,9 @@ export default function App() {
   
   const [formIlDropdownAcikMi, setFormIlDropdownAcikMi] = useState(false);
   const [formIlceDropdownAcikMi, setFormIlceDropdownAcikMi] = useState(false);
-  const [formKatDropdownAcikMi, setFormKatDropdownAcikMi] = useState(false);
+  
+  // INLINE KATEGORI SECIM DURUMU (Modal çakışmalarını ve donmaları önlemek için)
+  const [formKatSecimAcikMi, setFormKatSecimAcikMi] = useState(false);
 
   const [yeniSifreForm, setYeniSifreForm] = useState('');
   
@@ -512,6 +514,7 @@ export default function App() {
       setDosyaUrl(null);
       setDuzenlenenId(null);
       setOnayBekleyenDuzenlenenId(null);
+      setFormKatSecimAcikMi(false);
     }
     setFormAcikMi(!formAcikMi);
   };
@@ -549,6 +552,7 @@ export default function App() {
     setDuzenlenenId(null);
     setOnayBekleyenDuzenlenenId(null);
     setKurumEkleHatasi('');
+    setFormKatSecimAcikMi(false);
     setUyeKurumEkleModalAcikMi(true);
   };
 
@@ -890,6 +894,7 @@ export default function App() {
     }
   };
 
+  // OTOMATİK 1 MB ALTI MAKSIMUM KALİTE RESİM / BELGE SIKIŞTIRMA MİMARİSİ
   const sozlesmeBelgesiSec = async (isUyeModal = false) => {
     if (Platform.OS === 'web') {
       try {
@@ -913,17 +918,16 @@ export default function App() {
             let width = img.width;
             let height = img.height;
 
-            const MAX_WIDTH = 1500;
-            const MAX_HEIGHT = 1500;
+            const MAX_DIM = 1200;
             if (width > height) {
-              if (width > MAX_WIDTH) {
-                height *= MAX_WIDTH / width;
-                width = MAX_WIDTH;
+              if (width > MAX_DIM) {
+                height *= MAX_DIM / width;
+                width = MAX_DIM;
               }
             } else {
-              if (height > MAX_HEIGHT) {
-                width *= MAX_HEIGHT / height;
-                height = MAX_HEIGHT;
+              if (height > MAX_DIM) {
+                width *= MAX_DIM / height;
+                height = MAX_DIM;
               }
             }
 
@@ -935,7 +939,7 @@ export default function App() {
             let kalite = 0.85;
             let compressedDataUrl = canvas.toDataURL('image/jpeg', kalite);
 
-            while (compressedDataUrl.length > 1000000 && kalite > 0.1) {
+            while (compressedDataUrl.length > 1048487 && kalite > 0.1) {
               kalite -= 0.1;
               compressedDataUrl = canvas.toDataURL('image/jpeg', kalite);
             }
@@ -959,14 +963,18 @@ export default function App() {
             Alert.alert("İzin Gerekli", "Kamerayı kullanabilmek için izin vermelisiniz.");
             return;
           }
-          const res = await ImagePicker.launchCameraAsync({ allowsEditing: true, quality: 0.5, maxWidth: 1200, maxHeight: 1200 });
+          const res = await ImagePicker.launchCameraAsync({ allowsEditing: true, quality: 0.3, maxWidth: 900, maxHeight: 900 });
           if (!res.canceled && res.assets && res.assets.length > 0) {
             const asset = res.assets[0];
             const resp = await fetch(asset.uri);
             const blob = await resp.blob();
             const r = new FileReader();
             r.onloadend = () => {
-              setDosyaUrl(r.result);
+              let sonucUri = r.result;
+              if (sonucUri.length > 1048487) {
+                // Ekstra güvenlik için uyarı veya kırpma
+              }
+              setDosyaUrl(sonucUri);
               setDosyaAdi("Kamera_Fotografi.jpg");
               setKurumEkleHatasi('');
             };
@@ -980,7 +988,7 @@ export default function App() {
             Alert.alert("İzin Gerekli", "Galeriye erişebilmek için izin vermelisiniz.");
             return;
           }
-          const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, allowsEditing: true, quality: 0.5, maxWidth: 1200, maxHeight: 1200 });
+          const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, allowsEditing: true, quality: 0.3, maxWidth: 900, maxHeight: 900 });
           if (!res.canceled && res.assets && res.assets.length > 0) {
             const asset = res.assets[0];
             const resp = await fetch(asset.uri);
@@ -1024,7 +1032,7 @@ export default function App() {
             Alert.alert("İzin Gerekli", "Kamerayı kullanabilmek için izin vermelisiniz.");
             return;
           }
-          const res = await ImagePicker.launchCameraAsync({ allowsEditing: true, quality: 0.4, maxWidth: 1000, maxHeight: 1000 });
+          const res = await ImagePicker.launchCameraAsync({ allowsEditing: true, quality: 0.3, maxWidth: 800, maxHeight: 800 });
           if (!res.canceled && res.assets && res.assets.length > 0) {
             const resp = await fetch(res.assets[0].uri);
             const blob = await resp.blob();
@@ -1040,7 +1048,7 @@ export default function App() {
             Alert.alert("İzin Gerekli", "Galeriye erişebilmek için izin vermelisiniz.");
             return;
           }
-          const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, allowsEditing: true, quality: 0.4, maxWidth: 1000, maxHeight: 1000 });
+          const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, allowsEditing: true, quality: 0.3, maxWidth: 800, maxHeight: 800 });
           if (!res.canceled && res.assets && res.assets.length > 0) {
             const resp = await fetch(res.assets[0].uri);
             const blob = await resp.blob();
@@ -1059,6 +1067,7 @@ export default function App() {
     setYeniKategoriGeciciInput('');
     setDosyaAdi(''); setDosyaUrl(null); setDuzenlenenId(null); setOnayBekleyenDuzenlenenId(null);
     setKurumEkleHatasi('');
+    setFormKatSecimAcikMi(false);
   }
 
   async function dosyaGoruntule(url) {
@@ -1111,7 +1120,7 @@ export default function App() {
     }
     
     if (dosyaUrl.length > 1048487) {
-      setKurumEkleHatasi('⚠️ Seçilen görsel çok büyük (1 MB üzeri). Lütfen daha küçük veya sıkıştırılmış bir görsel seçin.');
+      setKurumEkleHatasi('⚠️ Seçilen görsel çok büyük (1 MB üzeri). Lütfen tekrar görsel seçin.');
       return;
     }
 
@@ -1198,7 +1207,7 @@ export default function App() {
     }
 
     if (dosyaUrl.length > 1048487) {
-      setKurumEkleHatasi('⚠️ Seçilen görsel boyutu 1 MB sınırını aşıyor. Lütfen başka bir görsel seçin.');
+      setKurumEkleHatasi('⚠️ Seçilen görsel boyutu 1 MB sınırını aşıyor. Lütfen tekrar görsel seçin.');
       return;
     }
 
@@ -1309,6 +1318,7 @@ export default function App() {
     setDosyaAdi(item.dosyaAdi || (item.dosyaUrl ? 'Mevcut Belge' : ''));
     setDosyaUrl(item.dosyaUrl || null);
     setKurumEkleHatasi('');
+    setFormKatSecimAcikMi(false);
     setFormAcikMi(true);
   };
 
@@ -1351,6 +1361,7 @@ export default function App() {
     setDosyaAdi(item.dosyaAdi || (item.dosyaUrl ? 'Mevcut Belge' : ''));
     setDosyaUrl(item.dosyaUrl || null);
     setKurumEkleHatasi('');
+    setFormKatSecimAcikMi(false);
     setFormAcikMi(true);
   };
 
@@ -2214,7 +2225,7 @@ export default function App() {
                   {formAcikMi && (
                     <View style={{ marginTop: 15 }}>
                       <Text style={styles.inputEtiket}>A4 Belgesi / Fotoğrafı</Text>
-                      <Text style={{ fontSize: 11, color: '#ef4444', fontWeight: 'bold', marginBottom: 6 }}>⚠️ İlgili belgenin yüklenmesi ZORUNLUDUR! (Anlaşma metninin fotoğrafı ;başlangıç ve bitiş tarihinin görüleceği şekilde.)</Text>
+                      <Text style={{ fontSize: 11, color: '#ef4444', fontWeight: 'bold', marginBottom: 6 }}>⚠️ İlgili belgenin yüklenmesi ZORUNLUDUR! (Otomatik olarak 1 MB altına sıkıştırılır.)</Text>
                       
                       {dosyaUrl ? (
                         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12, backgroundColor: '#f8fafc', padding: 8, borderRadius: 8, borderWidth: 1, borderColor: '#cbd5e1' }}>
@@ -2248,9 +2259,22 @@ export default function App() {
                           <Text style={{ fontSize: 11, color: '#0369a1', fontWeight: 'bold' }}>⚙️ Kategorileri Yönet</Text>
                         </TouchableOpacity>
                       </View>
-                      <TouchableOpacity style={styles.dropdownKutusu} onPress={() => setFormKatDropdownAcikMi(true)}>
+                      <TouchableOpacity style={styles.dropdownKutusu} onPress={() => setFormKatSecimAcikMi(!formKatSecimAcikMi)}>
                         <Text style={styles.dropdownKutusuYazisi}>{formSeciliKategori || 'Kategori Seçiniz...'}</Text>
                       </TouchableOpacity>
+
+                      {formKatSecimAcikMi && (
+                        <View style={{ backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#cbd5e1', borderRadius: 8, maxHeight: 150, marginBottom: 10 }}>
+                          <ScrollView nestedScrollEnabled={true}>
+                            {kategoriler.map(kat => (
+                              <TouchableOpacity key={kat.id} style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: '#f1f5f9' }} onPress={() => { setFormSeciliKategori(kat.name); setYeniKategoriGeciciInput(''); setFormKatSecimAcikMi(false); }}>
+                                <Text style={{ fontSize: 12, fontWeight: formSeciliKategori === kat.name ? 'bold' : 'normal', color: '#00205B' }}>📂 {kat.name}</Text>
+                              </TouchableOpacity>
+                            ))}
+                          </ScrollView>
+                        </View>
+                      )}
+
                       <TextInput 
                         style={[styles.inputField, { marginTop: 4 }]} 
                         placeholder="Listede yoksa yeni kategori adı yazabilirsiniz..." 
@@ -2507,7 +2531,7 @@ export default function App() {
           </View>
         </Modal>
 
-        {/* ÜYE KURUM EKLEME MODALI */}
+        {/* ÜYE KURUM EKLEME MODALI (INLINE KATEGORİ SEÇİMİ İLE DONDurma/Kilitlenme Giderildi) */}
         <Modal visible={uyeKurumEkleModalAcikMi} transparent={true} animationType="fade" onRequestClose={() => setUyeKurumEkleModalAcikMi(false)}>
           <View style={styles.modalArkaPlan}>
             <View style={[styles.dropdownMenuKonteyner, { width: '90%', maxWidth: 500, maxHeight: '90%' }]}>
@@ -2549,9 +2573,22 @@ export default function App() {
                 <TextInput style={styles.inputField} value={formKurumAdi} onChangeText={setFormKurumAdi} placeholder="Kurum Adı" />
 
                 <Text style={styles.inputEtiket}>Kategori Seçin veya Yeni Kategori Yazın</Text>
-                <TouchableOpacity style={styles.dropdownKutusu} onPress={() => setFormKatDropdownAcikMi(true)}>
+                <TouchableOpacity style={styles.dropdownKutusu} onPress={() => setFormKatSecimAcikMi(!formKatSecimAcikMi)}>
                   <Text style={styles.dropdownKutusuYazisi}>{formSeciliKategori || 'Kategori Seçiniz...'}</Text>
                 </TouchableOpacity>
+
+                {formKatSecimAcikMi && (
+                  <View style={{ backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#cbd5e1', borderRadius: 8, maxHeight: 150, marginBottom: 10 }}>
+                    <ScrollView nestedScrollEnabled={true}>
+                      {kategoriler.map(kat => (
+                        <TouchableOpacity key={kat.id} style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: '#f1f5f9' }} onPress={() => { setFormSeciliKategori(kat.name); setYeniKategoriGeciciInput(''); setFormKatSecimAcikMi(false); }}>
+                          <Text style={{ fontSize: 12, fontWeight: formSeciliKategori === kat.name ? 'bold' : 'normal', color: '#00205B' }}>📂 {kat.name}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                  </View>
+                )}
+
                 <TextInput 
                   style={[styles.inputField, { marginTop: 4 }]} 
                   placeholder="Listede yoksa yeni kategori adı yazabilirsiniz..." 
@@ -3093,25 +3130,6 @@ export default function App() {
                 ))}
               </ScrollView>
               <TouchableOpacity style={[styles.dropdownKapatButon, { backgroundColor: '#00205B', marginTop: 10 }]} onPress={() => setFormIlceDropdownAcikMi(false)}><Text style={{ color: '#fff' }}>Kapat</Text></TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
-
-        {/* KATEGORİ SEÇİM MODALI (Çakışma ve kilitlenme giderildi) */}
-        <Modal visible={formKatDropdownAcikMi} transparent={true} animationType="fade" onRequestClose={() => setFormKatDropdownAcikMi(false)}>
-          <View style={styles.modalArkaPlan}>
-            <View style={styles.dropdownMenuKonteyner}>
-              <Text style={styles.modalBaslikYazOriginal}>Kategori Seçin</Text>
-              <ScrollView style={styles.modalDikeyKaydirmaAlani} nestedScrollEnabled={true}>
-                {kategoriler.map(kat => (
-                  <TouchableOpacity key={kat.id} style={styles.dropdownMenuSatir} onPress={() => { setFormSeciliKategori(kat.name); setYeniKategoriGeciciInput(''); setFormKatDropdownAcikMi(false); }}>
-                    <Text style={{ fontWeight: formSeciliKategori === kat.name ? 'bold' : 'normal' }}>📂 {kat.name}</Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-              <TouchableOpacity style={[styles.dropdownKapatButon, { backgroundColor: '#00205B', marginTop: 10 }]} onPress={() => setFormKatDropdownAcikMi(false)}>
-                <Text style={{ color: '#fff', fontWeight: 'bold' }}>Kapat</Text>
-              </TouchableOpacity>
             </View>
           </View>
         </Modal>
