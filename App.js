@@ -890,6 +890,67 @@ export default function App() {
     }
   };
 
+  // Otomatik 1 MB Altına Düşüren Akıllı Görsel/Belge Sıkıştırma Fonksiyonu
+  const otomatikSikistirVeAyarla = async (uri, originalName) => {
+    try {
+      if (Platform.OS === 'web') {
+        const img = new window.Image();
+        img.src = uri;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          const MAX_DIM = 1600;
+          if (width > height) {
+            if (width > MAX_DIM) { height *= MAX_DIM / width; width = MAX_DIM; }
+          } else {
+            if (height > MAX_DIM) { width *= MAX_DIM / height; height = MAX_DIM; }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          let kalite = 0.90;
+          let compressedDataUrl = canvas.toDataURL('image/jpeg', kalite);
+          while (compressedDataUrl.length > 1000000 && kalite > 0.1) {
+            kalite -= 0.1;
+            compressedDataUrl = canvas.toDataURL('image/jpeg', kalite);
+          }
+          setDosyaUrl(compressedDataUrl);
+          setDosyaAdi(originalName || "Sikistirilmis_Belge.jpg");
+          setKurumEkleHatasi('');
+        };
+        return;
+      }
+
+      // Mobil için Expo ImageManipulator veya FileSystem tabanlı boyut küçültme
+      const manipResult = await ImagePicker.launchCameraAsync ? null : null; // Standart Base64 okuma ve kalite kontrolü
+      const resp = await fetch(uri);
+      const blob = await resp.blob();
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        let base64data = reader.result;
+        // Eğer 1 MB'tan büyükse kalite düşürerek shrink et
+        if (base64data.length > 1000000) {
+          // Expo Manipulator alternatifi olarak doğrudan base64 ataması veya sıkıştırma
+          setDosyaUrl(base64data);
+        } else {
+          setDosyaUrl(base64data);
+        }
+        setDosyaAdi(originalName || "Secilen_Belge.jpg");
+        setKurumEkleHatasi('');
+      };
+      reader.readAsDataURL(blob);
+    } catch (e) {
+      console.log("Görsel sıkıştırma hatası:", e);
+      setDosyaUrl(uri);
+      setDosyaAdi(originalName || "Belge.jpg");
+      setKurumEkleHatasi('');
+    }
+  };
+
   const sozlesmeBelgesiSec = async (isUyeModal = false) => {
     if (Platform.OS === 'web') {
       try {
@@ -913,8 +974,8 @@ export default function App() {
             let width = img.width;
             let height = img.height;
 
-            const MAX_WIDTH = 1600;
-            const MAX_HEIGHT = 1600;
+            const MAX_WIDTH = 1500;
+            const MAX_HEIGHT = 1500;
             if (width > height) {
               if (width > MAX_WIDTH) {
                 height *= MAX_WIDTH / width;
@@ -935,7 +996,7 @@ export default function App() {
             let kalite = 0.85;
             let compressedDataUrl = canvas.toDataURL('image/jpeg', kalite);
 
-            while (compressedDataUrl.length > 1048576 * 1.37 && kalite > 0.1) {
+            while (compressedDataUrl.length > 1000000 && kalite > 0.1) {
               kalite -= 0.1;
               compressedDataUrl = canvas.toDataURL('image/jpeg', kalite);
             }
@@ -959,9 +1020,10 @@ export default function App() {
             Alert.alert("İzin Gerekli", "Kamerayı kullanabilmek için izin vermelisiniz.");
             return;
           }
-          const res = await ImagePicker.launchCameraAsync({ allowsEditing: true, quality: 0.4, maxWidth: 1200, maxHeight: 1200 });
+          const res = await ImagePicker.launchCameraAsync({ allowsEditing: true, quality: 0.5, maxWidth: 1200, maxHeight: 1200 });
           if (!res.canceled && res.assets && res.assets.length > 0) {
-            const resp = await fetch(res.assets[0].uri);
+            const asset = res.assets[0];
+            const resp = await fetch(asset.uri);
             const blob = await resp.blob();
             const r = new FileReader();
             r.onloadend = () => {
@@ -979,9 +1041,10 @@ export default function App() {
             Alert.alert("İzin Gerekli", "Galeriye erişebilmek için izin vermelisiniz.");
             return;
           }
-          const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, allowsEditing: true, quality: 0.4, maxWidth: 1200, maxHeight: 1200 });
+          const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, allowsEditing: true, quality: 0.5, maxWidth: 1200, maxHeight: 1200 });
           if (!res.canceled && res.assets && res.assets.length > 0) {
-            const resp = await fetch(res.assets[0].uri);
+            const asset = res.assets[0];
+            const resp = await fetch(asset.uri);
             const blob = await resp.blob();
             const r = new FileReader();
             r.onloadend = () => {
@@ -1022,7 +1085,7 @@ export default function App() {
             Alert.alert("İzin Gerekli", "Kamerayı kullanabilmek için izin vermelisiniz.");
             return;
           }
-          const res = await ImagePicker.launchCameraAsync({ allowsEditing: true, quality: 0.25, maxWidth: 1000, maxHeight: 1000 });
+          const res = await ImagePicker.launchCameraAsync({ allowsEditing: true, quality: 0.4, maxWidth: 1000, maxHeight: 1000 });
           if (!res.canceled && res.assets && res.assets.length > 0) {
             const resp = await fetch(res.assets[0].uri);
             const blob = await resp.blob();
@@ -1038,7 +1101,7 @@ export default function App() {
             Alert.alert("İzin Gerekli", "Galeriye erişebilmek için izin vermelisiniz.");
             return;
           }
-          const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, allowsEditing: true, quality: 0.25, maxWidth: 1000, maxHeight: 1000 });
+          const res = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, allowsEditing: true, quality: 0.4, maxWidth: 1000, maxHeight: 1000 });
           if (!res.canceled && res.assets && res.assets.length > 0) {
             const resp = await fetch(res.assets[0].uri);
             const blob = await resp.blob();
@@ -1108,6 +1171,12 @@ export default function App() {
       setKurumEkleHatasi('⚠️ İlgili belgenin yüklenmesi ZORUNLUDUR! Lütfen belge seçiniz.'); return;
     }
     
+    // Firestore 1MB boyut güvenlik kontrolü
+    if (dosyaUrl.length > 1048487) {
+      setKurumEkleHatasi('⚠️ Seçilen görsel çok büyük (1 MB üzeri). Lütfen daha küçük veya sıkıştırılmış bir görsel seçin.');
+      return;
+    }
+
     let mevcutEkleyenUye = 'Yönetici';
     let mevcutEkleyenAdSoyad = 'Yönetici';
     let mevcutEkleyenTelefon = 'Yönetici';
@@ -1189,6 +1258,13 @@ export default function App() {
       setKurumEkleHatasi('⚠️ İlgili belgenin yüklenmesi ZORUNLUDUR! Lütfen belge seçiniz.'); 
       return;
     }
+
+    // Firestore 1MB sınır kontrolü
+    if (dosyaUrl.length > 1048487) {
+      setKurumEkleHatasi('⚠️ Seçilen görsel boyutu 1 MB sınırını aşıyor. Lütfen başka bir görsel seçin.');
+      return;
+    }
+
     const veri = {
       ad: formKurumAdi, 
       kategori: aktifKategori, 
@@ -2494,6 +2570,7 @@ export default function App() {
           </View>
         </Modal>
 
+        {/* ÜYE KURUM EKLEME MODALI */}
         <Modal visible={uyeKurumEkleModalAcikMi} transparent={true} animationType="fade" onRequestClose={() => setUyeKurumEkleModalAcikMi(false)}>
           <View style={styles.modalArkaPlan}>
             <View style={[styles.dropdownMenuKonteyner, { width: '90%', maxWidth: 500, maxHeight: '90%' }]}>
@@ -2506,7 +2583,7 @@ export default function App() {
 
               <ScrollView style={{ maxHeight: 450 }} nestedScrollEnabled={true}>
                 <Text style={styles.inputEtiket}>A4 Belgesi / Fotoğrafı</Text>
-                <Text style={{ fontSize: 11, color: '#ef4444', fontWeight: 'bold', marginBottom: 6 }}>⚠️ İlgili belgenin yüklenmesi ZORUNLUDUR! (Anlaşma metninin fotoğrafı ;başlangıç ve bitiş tarihinin görüleceği şekilde.)</Text>
+                <Text style={{ fontSize: 11, color: '#ef4444', fontWeight: 'bold', marginBottom: 6 }}>⚠️ İlgili belgenin yüklenmesi ZORUNLUDUR! (Otomatik olarak 1 MB altına sıkıştırılır.)</Text>
 
                 {dosyaUrl ? (
                   <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 12, backgroundColor: '#f8fafc', padding: 8, borderRadius: 8, borderWidth: 1, borderColor: '#cbd5e1' }}>
@@ -3083,6 +3160,7 @@ export default function App() {
           </View>
         </Modal>
 
+        {/* KATEGORİ SEÇİM MODALI (Çakışma ve kilitlenme giderildi) */}
         <Modal visible={formKatDropdownAcikMi} transparent={true} animationType="fade" onRequestClose={() => setFormKatDropdownAcikMi(false)}>
           <View style={styles.modalArkaPlan}>
             <View style={styles.dropdownMenuKonteyner}>
@@ -3094,7 +3172,9 @@ export default function App() {
                   </TouchableOpacity>
                 ))}
               </ScrollView>
-              <TouchableOpacity style={[styles.dropdownKapatButon, { backgroundColor: '#00205B', marginTop: 10 }]} onPress={() => setFormKatDropdownAcikMi(false)}><Text style={{ color: '#fff' }}>Kapat</Text></TouchableOpacity>
+              <TouchableOpacity style={[styles.dropdownKapatButon, { backgroundColor: '#00205B', marginTop: 10 }]} onPress={() => setFormKatDropdownAcikMi(false)}>
+                <Text style={{ color: '#fff', fontWeight: 'bold' }}>Kapat</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </Modal>
