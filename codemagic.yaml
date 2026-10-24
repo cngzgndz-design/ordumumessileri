@@ -34,7 +34,7 @@ workflows:
     artifacts:
       - android/app/build/outputs/bundle/release/*.aab
 
-  expo-ios-release:
+expo-ios-release:
     name: Expo iOS Release Workflow
     max_build_duration: 120
     instance_type: mac_mini_m2
@@ -44,29 +44,30 @@ workflows:
       cocoapods: default
       vars:
         BUNDLE_ID: "com.cngzgndz.ordumumessilleri"
+      groups:
+        - app_store_connect
     scripts:
       - name: Install Node dependencies
         script: |
           npm install
-      - name: Build iOS app with Expo and Xcode
+      - name: Build iOS app bundle locally with Expo
         script: |
-          npx expo prebuild --platform ios
-          
+          npx expo prebuild --platform ios --clean
           cd ios && pod install && cd ..
           
-          xcodebuild -workspace ios/ordumumessilleri.xcworkspace \
-            -scheme ordumumessilleri \
+          # Expo'nun yerel iOS arşivleme komutu adları otomatik yönetir
+          npx expo run:ios --configuration Release --no-bundler || true
+          
+          # Alternatif olarak derlemeyi xcodebuild ile yapacaksak doğru workspace adı:
+          # (Workspace adını 'Mmessilndirim' olarak güncelledik)
+          xcodebuild -workspace ios/Mmessilndirim.xcworkspace \
+            -scheme Mmessilndirim \
             -configuration Release \
-            -archivePath $FCI_BUILD_DIR/build/ordumumessilleri.xcarchive \
+            -archivePath $FCI_BUILD_DIR/build/Mmessilndirim.xcarchive \
             archive
-            
-          xcodebuild -exportArchive \
-            -archivePath $FCI_BUILD_DIR/build/ordumumessilleri.xcarchive \
-            -exportOptionsPlist ios/ExportOptions.plist \
-            -exportPath $FCI_BUILD_DIR/build/ios/ipa
     artifacts:
       - build/ios/ipa/*.ipa
-publishing:
+    publishing:
       app_store_connect:
         auth: integration
         name: EASSubmitKey
