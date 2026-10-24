@@ -220,10 +220,9 @@ export default function App() {
   const [formSeciliKategori, setFormSeciliKategori] = useState('');
   const [yeniKategoriGeciciInput, setYeniKategoriGeciciInput] = useState('');
   
-  const [formIlDropdownAcikMi, setFormIlDropdownAcikMi] = useState(false);
-  const [formIlceDropdownAcikMi, setFormIlceDropdownAcikMi] = useState(false);
-  
-  // INLINE KATEGORI SECIM DURUMU (Modal çakışmalarını ve donmaları önlemek için)
+  // İL, İLÇE VE KATEGORİ İÇİN INLINE AÇILIR MENÜLER (iOS modal kilitlenmesini tamamen önler)
+  const [formIlSecimAcikMi, setFormIlSecimAcikMi] = useState(false);
+  const [formIlceSecimAcikMi, setFormIlceSecimAcikMi] = useState(false);
   const [formKatSecimAcikMi, setFormKatSecimAcikMi] = useState(false);
 
   const [yeniSifreForm, setYeniSifreForm] = useState('');
@@ -498,6 +497,12 @@ export default function App() {
     return `${gun}${ay}${yil}`;
   };
 
+  const formMenuKapatTumunu = () => {
+    setFormIlSecimAcikMi(false);
+    setFormIlceSecimAcikMi(false);
+    setFormKatSecimAcikMi(false);
+  };
+
   const yeniSozlesmeFormunuAc = () => {
     if (!formAcikMi) {
       const bugun = new Date();
@@ -508,13 +513,15 @@ export default function App() {
       setFormBitis(tarihFormatla(birYilSonra));
       setFormKurumAdi('');
       setFormAvantajDetayi('');
+      setFormSeciliIl('Ordu');
+      setFormSeciliIlce('Altınordu');
       setFormSeciliKategori(kategoriler.length > 0 ? kategoriler[0].name : '');
       setYeniKategoriGeciciInput('');
       setDosyaAdi('');
       setDosyaUrl(null);
       setDuzenlenenId(null);
       setOnayBekleyenDuzenlenenId(null);
-      setFormKatSecimAcikMi(false);
+      formMenuKapatTumunu();
     }
     setFormAcikMi(!formAcikMi);
   };
@@ -545,6 +552,8 @@ export default function App() {
     setFormBitis(tarihFormatla(birYilSonra));
     setFormKurumAdi('');
     setFormAvantajDetayi('');
+    setFormSeciliIl('Ordu');
+    setFormSeciliIlce('Altınordu');
     setFormSeciliKategori(kategoriler.length > 0 ? kategoriler[0].name : '');
     setYeniKategoriGeciciInput('');
     setDosyaAdi('');
@@ -552,7 +561,7 @@ export default function App() {
     setDuzenlenenId(null);
     setOnayBekleyenDuzenlenenId(null);
     setKurumEkleHatasi('');
-    setFormKatSecimAcikMi(false);
+    formMenuKapatTumunu();
     setUyeKurumEkleModalAcikMi(true);
   };
 
@@ -895,7 +904,7 @@ export default function App() {
   };
 
   // OTOMATİK 1 MB ALTI MAKSIMUM KALİTE RESİM / BELGE SIKIŞTIRMA MİMARİSİ
-  const sozlesmeBelgesiSec = async (isUyeModal = false) => {
+  const sozlesmeBelgesiSec = async () => {
     if (Platform.OS === 'web') {
       try {
         const result = await DocumentPicker.getDocumentAsync({ type: ['image/*', 'application/pdf'] });
@@ -970,11 +979,7 @@ export default function App() {
             const blob = await resp.blob();
             const r = new FileReader();
             r.onloadend = () => {
-              let sonucUri = r.result;
-              if (sonucUri.length > 1048487) {
-                // Ekstra güvenlik için uyarı veya kırpma
-              }
-              setDosyaUrl(sonucUri);
+              setDosyaUrl(r.result);
               setDosyaAdi("Kamera_Fotografi.jpg");
               setKurumEkleHatasi('');
             };
@@ -1067,7 +1072,7 @@ export default function App() {
     setYeniKategoriGeciciInput('');
     setDosyaAdi(''); setDosyaUrl(null); setDuzenlenenId(null); setOnayBekleyenDuzenlenenId(null);
     setKurumEkleHatasi('');
-    setFormKatSecimAcikMi(false);
+    formMenuKapatTumunu();
   }
 
   async function dosyaGoruntule(url) {
@@ -1318,7 +1323,7 @@ export default function App() {
     setDosyaAdi(item.dosyaAdi || (item.dosyaUrl ? 'Mevcut Belge' : ''));
     setDosyaUrl(item.dosyaUrl || null);
     setKurumEkleHatasi('');
-    setFormKatSecimAcikMi(false);
+    formMenuKapatTumunu();
     setFormAcikMi(true);
   };
 
@@ -1361,7 +1366,7 @@ export default function App() {
     setDosyaAdi(item.dosyaAdi || (item.dosyaUrl ? 'Mevcut Belge' : ''));
     setDosyaUrl(item.dosyaUrl || null);
     setKurumEkleHatasi('');
-    setFormKatSecimAcikMi(false);
+    formMenuKapatTumunu();
     setFormAcikMi(true);
   };
 
@@ -2235,7 +2240,7 @@ export default function App() {
                           <View style={{ flex: 1 }}>
                             <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#00205B' }} numberOfLines={1}>{dosyaAdi || 'Belge Yüklendi'}</Text>
                             <View style={{ flexDirection: 'row', gap: 10, marginTop: 4 }}>
-                              <TouchableOpacity onPress={() => sozlesmeBelgesiSec(false)}>
+                              <TouchableOpacity onPress={sozlesmeBelgesiSec}>
                                 <Text style={{ fontSize: 11, color: '#0369a1', fontWeight: 'bold' }}>🔄 Belgeyi Değiştir</Text>
                               </TouchableOpacity>
                               <TouchableOpacity onPress={() => { setDosyaUrl(null); setDosyaAdi(''); }}>
@@ -2245,7 +2250,7 @@ export default function App() {
                           </View>
                         </View>
                       ) : (
-                        <TouchableOpacity style={styles.dosyaYukleKutusu} onPress={() => sozlesmeBelgesiSec(false)}>
+                        <TouchableOpacity style={styles.dosyaYukleKutusu} onPress={sozlesmeBelgesiSec}>
                           <Text style={styles.dosyaYukleYazisi}>📂 Belge Seç veya Kamera ile Çek (Zorunlu)</Text>
                         </TouchableOpacity>
                       )}
@@ -2259,7 +2264,7 @@ export default function App() {
                           <Text style={{ fontSize: 11, color: '#0369a1', fontWeight: 'bold' }}>⚙️ Kategorileri Yönet</Text>
                         </TouchableOpacity>
                       </View>
-                      <TouchableOpacity style={styles.dropdownKutusu} onPress={() => setFormKatSecimAcikMi(!formKatSecimAcikMi)}>
+                      <TouchableOpacity style={styles.dropdownKutusu} onPress={() => { setFormKatSecimAcikMi(!formKatSecimAcikMi); setFormIlSecimAcikMi(false); setFormIlceSecimAcikMi(false); }}>
                         <Text style={styles.dropdownKutusuYazisi}>{formSeciliKategori || 'Kategori Seçiniz...'}</Text>
                       </TouchableOpacity>
 
@@ -2291,14 +2296,38 @@ export default function App() {
                       </View>
 
                       <Text style={styles.inputEtiket}>İl Seçin</Text>
-                      <TouchableOpacity style={styles.dropdownKutusu} onPress={() => setFormIlDropdownAcikMi(true)}>
+                      <TouchableOpacity style={styles.dropdownKutusu} onPress={() => { setFormIlSecimAcikMi(!formIlSecimAcikMi); setFormIlceSecimAcikMi(false); setFormKatSecimAcikMi(false); }}>
                         <Text style={styles.dropdownKutusuYazisi}>📍 {formSeciliIl}</Text>
                       </TouchableOpacity>
 
+                      {formIlSecimAcikMi && (
+                        <View style={{ backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#cbd5e1', borderRadius: 8, maxHeight: 150, marginBottom: 10 }}>
+                          <ScrollView nestedScrollEnabled={true}>
+                            {formIllerListesi.map((il, idx) => (
+                              <TouchableOpacity key={idx} style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: '#f1f5f9' }} onPress={() => { setFormSeciliIl(il); setFormSeciliIlce(TURKIYE_ILLERI_VE_ILCELERI[il][0] || 'Merkez'); setFormIlSecimAcikMi(false); }}>
+                                <Text style={{ fontSize: 12, fontWeight: formSeciliIl === il ? 'bold' : 'normal', color: '#00205B' }}>📍 {il}</Text>
+                              </TouchableOpacity>
+                            ))}
+                          </ScrollView>
+                        </View>
+                      )}
+
                       <Text style={styles.inputEtiket}>İlçe Seçin</Text>
-                      <TouchableOpacity style={styles.dropdownKutusu} onPress={() => setFormIlceDropdownAcikMi(true)}>
+                      <TouchableOpacity style={styles.dropdownKutusu} onPress={() => { setFormIlceSecimAcikMi(!formIlceSecimAcikMi); setFormIlSecimAcikMi(false); setFormKatSecimAcikMi(false); }}>
                         <Text style={styles.dropdownKutusuYazisi}>🏘️ {formSeciliIlce}</Text>
                       </TouchableOpacity>
+
+                      {formIlceSecimAcikMi && (
+                        <View style={{ backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#cbd5e1', borderRadius: 8, maxHeight: 150, marginBottom: 10 }}>
+                          <ScrollView nestedScrollEnabled={true}>
+                            {formIlcelerListesi.map((ilce, idx) => (
+                              <TouchableOpacity key={idx} style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: '#f1f5f9' }} onPress={() => { setFormSeciliIlce(ilce); setFormIlceSecimAcikMi(false); }}>
+                                <Text style={{ fontSize: 12, fontWeight: formSeciliIlce === ilce ? 'bold' : 'normal', color: '#00205B' }}>🏘️ {ilce}</Text>
+                              </TouchableOpacity>
+                            ))}
+                          </ScrollView>
+                        </View>
+                      )}
 
                       {kurumEkleHatasi ? (
                         <Text style={{ color: '#dc3545', fontSize: 12, marginBottom: 8, fontWeight: 'bold', textAlign: 'center' }}>
@@ -2531,7 +2560,7 @@ export default function App() {
           </View>
         </Modal>
 
-        {/* ÜYE KURUM EKLEME MODALI (INLINE KATEGORİ SEÇİMİ İLE DONDurma/Kilitlenme Giderildi) */}
+        {/* ÜYE KURUM EKLEME MODALI (INLINE SEÇİMLER İLE FULL KARARLI VE SORUNSUZ) */}
         <Modal visible={uyeKurumEkleModalAcikMi} transparent={true} animationType="fade" onRequestClose={() => setUyeKurumEkleModalAcikMi(false)}>
           <View style={styles.modalArkaPlan}>
             <View style={[styles.dropdownMenuKonteyner, { width: '90%', maxWidth: 500, maxHeight: '90%' }]}>
@@ -2554,7 +2583,7 @@ export default function App() {
                     <View style={{ flex: 1 }}>
                       <Text style={{ fontSize: 12, fontWeight: 'bold', color: '#00205B' }} numberOfLines={1}>{dosyaAdi || 'Belge Yüklendi'}</Text>
                       <View style={{ flexDirection: 'row', gap: 10, marginTop: 4 }}>
-                        <TouchableOpacity onPress={() => sozlesmeBelgesiSec(true)}>
+                        <TouchableOpacity onPress={sozlesmeBelgesiSec}>
                           <Text style={{ fontSize: 11, color: '#0369a1', fontWeight: 'bold' }}>🔄 Belgeyi Değiştir</Text>
                         </TouchableOpacity>
                         <TouchableOpacity onPress={() => { setDosyaUrl(null); setDosyaAdi(''); }}>
@@ -2564,7 +2593,7 @@ export default function App() {
                     </View>
                   </View>
                 ) : (
-                  <TouchableOpacity style={styles.dosyaYukleKutusu} onPress={() => sozlesmeBelgesiSec(true)}>
+                  <TouchableOpacity style={styles.dosyaYukleKutusu} onPress={sozlesmeBelgesiSec}>
                     <Text style={styles.dosyaYukleYazisi}>📂 Belge Seç veya Kamera ile Çek (Zorunlu)</Text>
                   </TouchableOpacity>
                 )}
@@ -2573,7 +2602,7 @@ export default function App() {
                 <TextInput style={styles.inputField} value={formKurumAdi} onChangeText={setFormKurumAdi} placeholder="Kurum Adı" />
 
                 <Text style={styles.inputEtiket}>Kategori Seçin veya Yeni Kategori Yazın</Text>
-                <TouchableOpacity style={styles.dropdownKutusu} onPress={() => setFormKatSecimAcikMi(!formKatSecimAcikMi)}>
+                <TouchableOpacity style={styles.dropdownKutusu} onPress={() => { setFormKatSecimAcikMi(!formKatSecimAcikMi); setFormIlSecimAcikMi(false); setFormIlceSecimAcikMi(false); }}>
                   <Text style={styles.dropdownKutusuYazisi}>{formSeciliKategori || 'Kategori Seçiniz...'}</Text>
                 </TouchableOpacity>
 
@@ -2605,14 +2634,38 @@ export default function App() {
                 </View>
 
                 <Text style={styles.inputEtiket}>İl Seçin</Text>
-                <TouchableOpacity style={styles.dropdownKutusu} onPress={() => setFormIlDropdownAcikMi(true)}>
+                <TouchableOpacity style={styles.dropdownKutusu} onPress={() => { setFormIlSecimAcikMi(!formIlSecimAcikMi); setFormIlceSecimAcikMi(false); setFormKatSecimAcikMi(false); }}>
                   <Text style={styles.dropdownKutusuYazisi}>📍 {formSeciliIl}</Text>
                 </TouchableOpacity>
 
+                {formIlSecimAcikMi && (
+                  <View style={{ backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#cbd5e1', borderRadius: 8, maxHeight: 150, marginBottom: 10 }}>
+                    <ScrollView nestedScrollEnabled={true}>
+                      {formIllerListesi.map((il, idx) => (
+                        <TouchableOpacity key={idx} style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: '#f1f5f9' }} onPress={() => { setFormSeciliIl(il); setFormSeciliIlce(TURKIYE_ILLERI_VE_ILCELERI[il][0] || 'Merkez'); setFormIlSecimAcikMi(false); }}>
+                          <Text style={{ fontSize: 12, fontWeight: formSeciliIl === il ? 'bold' : 'normal', color: '#00205B' }}>📍 {il}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                  </View>
+                )}
+
                 <Text style={styles.inputEtiket}>İlçe Seçin</Text>
-                <TouchableOpacity style={styles.dropdownKutusu} onPress={() => setFormIlceDropdownAcikMi(true)}>
+                <TouchableOpacity style={styles.dropdownKutusu} onPress={() => { setFormIlceSecimAcikMi(!formIlceSecimAcikMi); setFormIlSecimAcikMi(false); setFormKatSecimAcikMi(false); }}>
                   <Text style={styles.dropdownKutusuYazisi}>🏘️ {formSeciliIlce}</Text>
                 </TouchableOpacity>
+
+                {formIlceSecimAcikMi && (
+                  <View style={{ backgroundColor: '#f8fafc', borderWidth: 1, borderColor: '#cbd5e1', borderRadius: 8, maxHeight: 150, marginBottom: 10 }}>
+                    <ScrollView nestedScrollEnabled={true}>
+                      {formIlcelerListesi.map((ilce, idx) => (
+                        <TouchableOpacity key={idx} style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: '#f1f5f9' }} onPress={() => { setFormSeciliIlce(ilce); setFormIlceSecimAcikMi(false); }}>
+                          <Text style={{ fontSize: 12, fontWeight: formSeciliIlce === ilce ? 'bold' : 'normal', color: '#00205B' }}>🏘️ {ilce}</Text>
+                        </TouchableOpacity>
+                      ))}
+                    </ScrollView>
+                  </View>
+                )}
 
                 {kurumEkleHatasi ? (
                   <Text style={{ color: '#dc3545', fontSize: 12, marginVertical: 8, fontWeight: 'bold', textAlign: 'center' }}>
@@ -3098,38 +3151,6 @@ export default function App() {
                 ))}
               </ScrollView>
               <TouchableOpacity style={[styles.dropdownKapatButon, { backgroundColor: '#00205B', marginTop: 10 }]} onPress={() => setAdminKatDrop(false)}><Text style={{ color: '#fff' }}>Kapat</Text></TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
-
-        <Modal visible={formIlDropdownAcikMi} transparent={true} animationType="fade" onRequestClose={() => setFormIlDropdownAcikMi(false)}>
-          <View style={styles.modalArkaPlan}>
-            <View style={styles.dropdownMenuKonteyner}>
-              <Text style={styles.modalBaslikYazOriginal}>İl Seçin</Text>
-              <ScrollView style={styles.modalDikeyKaydirmaAlani} nestedScrollEnabled={true}>
-                {formIllerListesi.map((il, idx) => (
-                  <TouchableOpacity key={idx} style={styles.dropdownMenuSatir} onPress={() => { setFormSeciliIl(il); setFormSeciliIlce(TURKIYE_ILLERI_VE_ILCELERI[il][0] || 'Merkez'); setFormIlDropdownAcikMi(false); }}>
-                    <Text style={{ fontWeight: formSeciliIl === il ? 'bold' : 'normal' }}>📍 {il}</Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-              <TouchableOpacity style={[styles.dropdownKapatButon, { backgroundColor: '#00205B', marginTop: 10 }]} onPress={() => setFormIlDropdownAcikMi(false)}><Text style={{ color: '#fff' }}>Kapat</Text></TouchableOpacity>
-            </View>
-          </View>
-        </Modal>
-
-        <Modal visible={formIlceDropdownAcikMi} transparent={true} animationType="fade" onRequestClose={() => setFormIlceDropdownAcikMi(false)}>
-          <View style={styles.modalArkaPlan}>
-            <View style={styles.dropdownMenuKonteyner}>
-              <Text style={styles.modalBaslikYazOriginal}>İlçe Seçin</Text>
-              <ScrollView style={styles.modalDikeyKaydirmaAlani} nestedScrollEnabled={true}>
-                {formIlcelerListesi.map((ilce, idx) => (
-                  <TouchableOpacity key={idx} style={styles.dropdownMenuSatir} onPress={() => { setFormSeciliIlce(ilce); setFormIlceDropdownAcikMi(false); }}>
-                    <Text style={{ fontWeight: formSeciliIlce === ilce ? 'bold' : 'normal' }}>🏘️ {ilce}</Text>
-                  </TouchableOpacity>
-                ))}
-              </ScrollView>
-              <TouchableOpacity style={[styles.dropdownKapatButon, { backgroundColor: '#00205B', marginTop: 10 }]} onPress={() => setFormIlceDropdownAcikMi(false)}><Text style={{ color: '#fff' }}>Kapat</Text></TouchableOpacity>
             </View>
           </View>
         </Modal>

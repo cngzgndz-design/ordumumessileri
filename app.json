@@ -9,7 +9,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.cngzgndz.ordumumessilleri",
-      "buildNumber": "4",
+      "buildNumber": "5",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSPhotoLibraryUsageDescription": "Yönetici paneli üzerinden kadro ve profil görsellerini güncelleyebilmek için fotoğraf kütüphanesine erişim gereklidir (örneğin: ekip üyelerinden birinin fotoğrafını seçip yüklemek için)."
@@ -21,7 +21,7 @@
         "foregroundImage": "./assets/logo.png"
       },
       "package": "com.cengizgunduz.ordumumessilleri",
-      "versionCode": 27,
+      "versionCode": 28,
       "softwareKeyboardLayoutMode": "pan",
       "intentFilters": [],
       "permissions": []
