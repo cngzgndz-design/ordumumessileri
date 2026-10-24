@@ -44,15 +44,10 @@ workflows:
       cocoapods: default
       vars:
         BUNDLE_ID: "com.cngzgndz.ordumumessilleri"
-      groups:
-        - app_store_connect
     scripts:
       - name: Install Node dependencies
         script: |
           npm install
-      - name: Set up code signing settings
-        script: |
-          app-store-connect fetch-signing-files "$BUNDLE_ID" --type APP_STORE --create
       - name: Build iOS app with Expo and Xcode
         script: |
           npx expo prebuild --platform ios
@@ -71,7 +66,3 @@ workflows:
             -exportPath $FCI_BUILD_DIR/build/ios/ipa
     artifacts:
       - build/ios/ipa/*.ipa
-    publishing:
-      app_store_connect:
-        auth: integration
-        submit_to_testflight: true
