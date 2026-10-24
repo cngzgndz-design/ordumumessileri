@@ -56,7 +56,6 @@ workflows:
           npx expo prebuild --platform ios --clean
           cd ios && pod install && cd ..
           
-          # Codemagic'in otomatik imzalama ve arşivleme aracı
           xcode-project use-profiles
           
           xcodebuild -workspace ios/Mmessilndirim.xcworkspace \
@@ -72,7 +71,3 @@ workflows:
             -exportPath $FCI_BUILD_DIR/build/ios/ipa
     artifacts:
       - build/ios/ipa/*.ipa
-    publishing:
-      app_store_connect:
-        auth: integration
-        submit_to_testflight: true
