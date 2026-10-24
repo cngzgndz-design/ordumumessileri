@@ -66,7 +66,9 @@ workflows:
             -exportPath $FCI_BUILD_DIR/build/ios/ipa
     artifacts:
       - build/ios/ipa/*.ipa
-    publishing:
+publishing:
       app_store_connect:
         auth: integration
+        # Eğer Codemagic entegrasyonuna bir isim verdiysen buraya yazabilirsin, 
+        # vermediysen doğrudan aşağıdaki gibi bırakabilirsin:
         submit_to_testflight: true
