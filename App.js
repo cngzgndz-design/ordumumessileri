@@ -220,7 +220,6 @@ export default function App() {
   const [formSeciliKategori, setFormSeciliKategori] = useState('');
   const [yeniKategoriGeciciInput, setYeniKategoriGeciciInput] = useState('');
   
-  // İL, İLÇE VE KATEGORİ İÇİN INLINE AÇILIR MENÜLER (iOS modal kilitlenmesini tamamen önler)
   const [formIlSecimAcikMi, setFormIlSecimAcikMi] = useState(false);
   const [formIlceSecimAcikMi, setFormIlceSecimAcikMi] = useState(false);
   const [formKatSecimAcikMi, setFormKatSecimAcikMi] = useState(false);
@@ -903,7 +902,6 @@ export default function App() {
     }
   };
 
-  // OTOMATİK 1 MB ALTI MAKSIMUM KALİTE RESİM / BELGE SIKIŞTIRMA MİMARİSİ
   const sozlesmeBelgesiSec = async () => {
     if (Platform.OS === 'web') {
       try {
@@ -1497,6 +1495,7 @@ export default function App() {
     setReklamFormBaslangic(s.baslangic || '');
     setReklamFormBitis(s.bitis || '');
     setReklamFormAktif(s.aktif === true || s.aktif === 'true' || s.aktif === 1 || s.aktif === 'Aktif');
+    setReklamYonetimModalAcikMi(false); // <--- ÇIKIŞ/KİLİTLENME SORUNUNU ÖNLEMEK İÇİN ÖNCE REKLAM YÖNETİMİ MODALI KAPATILIYOR
     setReklamDuzenleModalAcikMi(true);
   };
 
@@ -1512,6 +1511,7 @@ export default function App() {
         aktif: Boolean(reklamFormAktif)
       });
       setReklamDuzenleModalAcikMi(false);
+      setReklamYonetimModalAcikMi(true);
       Alert.alert("Başarılı", "Reklam başarıyla güncellendi!");
     } catch (e) { Alert.alert("Hata", "Güncelleme hatası: " + e.message); }
   };
@@ -2560,7 +2560,6 @@ export default function App() {
           </View>
         </Modal>
 
-        {/* ÜYE KURUM EKLEME MODALI (INLINE SEÇİMLER İLE FULL KARARLI VE SORUNSUZ) */}
         <Modal visible={uyeKurumEkleModalAcikMi} transparent={true} animationType="fade" onRequestClose={() => setUyeKurumEkleModalAcikMi(false)}>
           <View style={styles.modalArkaPlan}>
             <View style={[styles.dropdownMenuKonteyner, { width: '90%', maxWidth: 500, maxHeight: '90%' }]}>
@@ -2915,12 +2914,12 @@ export default function App() {
           </View>
         </Modal>
 
-        <Modal visible={reklamDuzenleModalAcikMi} transparent={true} animationType="fade" onRequestClose={() => setReklamDuzenleModalAcikMi(false)}>
+        <Modal visible={reklamDuzenleModalAcikMi} transparent={true} animationType="fade" onRequestClose={() => { setReklamDuzenleModalAcikMi(false); setReklamYonetimModalAcikMi(true); }}>
           <View style={styles.modalArkaPlan}>
             <View style={[styles.dropdownMenuKonteyner, { width: 350 }]}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
                 <Text style={[styles.modalBaslikYazOriginal, { marginBottom: 0 }]}>Reklamı Düzenle</Text>
-                <TouchableOpacity onPress={() => setReklamDuzenleModalAcikMi(false)}>
+                <TouchableOpacity onPress={() => { setReklamDuzenleModalAcikMi(false); setReklamYonetimModalAcikMi(true); }}>
                   <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#b91c1c' }}>✕</Text>
                 </TouchableOpacity>
               </View>
@@ -2962,7 +2961,7 @@ export default function App() {
               <TouchableOpacity style={[styles.kaydetButon, { backgroundColor: '#00205B', marginTop: 10 }]} onPress={reklamGuncelleKaydet}>
                 <Text style={styles.kaydetButonYazi}>Reklamı Güncelle</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.dropdownKapatButon, { alignItems: 'center', marginTop: 5 }]} onPress={() => setReklamDuzenleModalAcikMi(false)}>
+              <TouchableOpacity style={[styles.dropdownKapatButon, { alignItems: 'center', marginTop: 5 }]} onPress={() => { setReklamDuzenleModalAcikMi(false); setReklamYonetimModalAcikMi(true); }}>
                 <Text style={{ color: '#64748b', fontWeight: 'bold' }}>İptal</Text>
               </TouchableOpacity>
             </View>
