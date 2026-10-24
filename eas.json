@@ -2,10 +2,11 @@
   "cli": {
     "version": ">= 12.0.0"
   },
-  "build": {
+   "build": {
     "production": {
       "ios": {
-        "simulator": false
+        "simulator": false,
+        "credentialsSource": "local"
       }
     }
   },
