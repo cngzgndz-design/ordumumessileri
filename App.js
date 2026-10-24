@@ -343,8 +343,19 @@ export default function App() {
 
   const favoriToggleEt = async (kurumId) => {
     if (!girisYapmisKullanici) {
-      Alert.alert("Uyarı", "⭐ Kurumları favorilere ekleyip filtreleyebilmek için önce üye girişi yapmalısınız!");
-      setProfilModalAcikMi(true);
+      if (Platform.OS === 'web') {
+        if (window.confirm("⭐ Kurumları favorilere ekleyip filtreleyebilmek için önce üye girişi yapmalısınız!")) {
+          setProfilModalAcikMi(true);
+        }
+      } else {
+        Alert.alert(
+          "Uyarı",
+          "⭐ Kurumları favorilere ekleyip filtreleyebilmek için önce üye girişi yapmalısınız!",
+          [
+            { text: "Tamam", onPress: () => setProfilModalAcikMi(true) }
+          ]
+        );
+      }
       return;
     }
 
@@ -507,8 +518,19 @@ export default function App() {
 
   const uyeKurumEkleFormunuAc = () => {
     if (!girisYapmisKullanici) {
-      Alert.alert("Uyarı", "⚠️ Anlaşmalı kurum ekleyebilmek için önce üye girişi yapmalısınız!");
-      setProfilModalAcikMi(true);
+      if (Platform.OS === 'web') {
+        if (window.confirm("⚠️ Anlaşmalı kurum ekleyebilmek için önce üye girişi yapmalısınız!")) {
+          setProfilModalAcikMi(true);
+        }
+      } else {
+        Alert.alert(
+          "Uyarı",
+          "⚠️ Anlaşmalı kurum ekleyebilmek için önce üye girişi yapmalısınız!",
+          [
+            { text: "Tamam", onPress: () => setProfilModalAcikMi(true) }
+          ]
+        );
+      }
       return;
     }
 
@@ -1668,16 +1690,6 @@ export default function App() {
           </View>
         )}
 
-        {googleAdsBannerAktifMi && REKLAMLARI_AKTIF_ET && Platform.OS !== 'web' && BannerAd && BannerAdSize && (
-          <View style={{ width: '100%', alignItems: 'center', marginVertical: 8 }}>
-            <BannerAd
-              unitId={adUnitId}
-              size={BannerAdSize.BANNER}
-              requestOptions={{ requestNonPersonalizedAdsOnly: true }}
-            />
-          </View>
-        )}
-
         <View style={styles.ustSponsorBannerKapsul}>
           {sliderOgeleri.length > 0 ? (
             (() => {
@@ -1893,6 +1905,16 @@ export default function App() {
                 </View>
               </View>
             ) : null}
+
+            {googleAdsBannerAktifMi && REKLAMLARI_AKTIF_ET && Platform.OS !== 'web' && BannerAd && BannerAdSize && (
+              <View style={{ width: '100%', alignItems: 'center', marginVertical: 8 }}>
+                <BannerAd
+                  unitId={adUnitId}
+                  size={BannerAdSize.BANNER}
+                  requestOptions={{ requestNonPersonalizedAdsOnly: true }}
+                />
+              </View>
+            )}
 
             <Text style={styles.copyrightMetni}>© CG</Text>
           </View>
