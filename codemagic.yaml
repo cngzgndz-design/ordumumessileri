@@ -1,6 +1,7 @@
 workflows:
   expo-android-release:
     name: Expo Android Release Workflow
+<<<<<<< HEAD
     max_build_duration: 120
     instance_type: mac_mini_m2
     environment:
@@ -36,22 +37,25 @@ workflows:
 
   expo-ios-release:
     name: Expo iOS Release Workflow
+=======
+>>>>>>> 9e8e65a76bc4f8ea2c05cdddb950b9cbf5453e70
     max_build_duration: 120
-    instance_type: mac_mini_m2
     environment:
-      node: 20.11.0
-      xcode: latest
-      cocoapods: default
-      vars:
-        BUNDLE_ID: "com.cngzgndz.ordumumessilleri"
       groups:
+<<<<<<< HEAD
         - app_store_connect
+=======
+        - android_keys
+      vars:
+        PACKAGE_NAME: "com.cengizgunduz.ordumumessilleri"
+>>>>>>> 9e8e65a76bc4f8ea2c05cdddb950b9cbf5453e70
     scripts:
       - name: Install Node dependencies
         script: |
           npm install
-      - name: Set up code signing settings
+      - name: Setup Keystore
         script: |
+<<<<<<< HEAD
           app-store-connect fetch-signing-files "$BUNDLE_ID" --type APP_STORE --create
       - name: Build iOS app with Expo and Xcode
         script: |
@@ -75,3 +79,25 @@ workflows:
       app_store_connect:
         auth: integration
         submit_to_testflight: true
+=======
+          mkdir -p android/app
+          echo $CM_KEYSTORE | base64 --decode > android/app/release.keystore
+      - name: Build Android App Bundle with Expo
+        script: |
+          export ANDROID_HOME=$ANDROID_SDK_ROOT
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager "platforms;android-36" "build-tools;36.0.0"
+
+          # --clean parametresi kaldırıldı
+          npx expo prebuild --platform android
+
+          cd android
+          chmod +x gradlew
+          ./gradlew bundleRelease \
+            -Pandroid.injected.signing.store.file="$FCI_BUILD_DIR/android/app/release.keystore" \
+            -Pandroid.injected.signing.store.password="$CM_KEYSTORE_PASSWORD" \
+            -Pandroid.injected.signing.key.alias="354a8131dca2a32b42c2a35a3dec7b4c" \
+            -Pandroid.injected.signing.key.password="$CM_KEY_PASSWORD"
+    artifacts:
+      - android/app/build/outputs/bundle/release/*.aab
+>>>>>>> 9e8e65a76bc4f8ea2c05cdddb950b9cbf5453e70
