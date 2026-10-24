@@ -2557,11 +2557,11 @@ export default function App() {
               <TouchableOpacity style={{ position: 'absolute', top: 10, right: 10, zIndex: 99, backgroundColor: '#ef4444', width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center' }} onPress={() => setTamEkranGorsel(null)}>
                 <Text style={{ color: '#fff', fontSize: 18, fontWeight: 'bold' }}>✕</Text>
               </TouchableOpacity>
-              {tamEkranGorsel && tamEkranGorsel.startsWith('data:image/') ? (
+              {tamEkranGorsel ? (
                 <Image source={{ uri: tamEkranGorsel }} resizeMode="contain" style={{ width: '100%', height: '100%' }} />
               ) : (
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-                  <Text style={{ color: '#333', textAlign: 'center' }}>Önizleme gösteriliyor.</Text>
+                  <Text style={{ color: '#333', textAlign: 'center' }}>Önizleme yüklenemedi.</Text>
                 </View>
               )}
             </View>
