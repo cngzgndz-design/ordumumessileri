@@ -1069,15 +1069,32 @@ export default function App() {
     const konumMetni = `${ilce || ''} ${il || ''}`.trim();
     const urlSorgu = encodeURIComponent(`${kurumAdi} ${konumMetni}`);
     
-    const haritaUri = Platform.select({
-      ios: `maps:0,0?q=${urlSorgu}`,
-      android: `geo:0,0?q=${urlSorgu}`,
-      default: `https://www.google.com/maps/search/?api=1&query=${urlSorgu}`
-    });
+    if (Platform.OS === 'ios') {
+      Alert.alert(
+        "Harita Seçimi",
+        "Kurumu hangi harita uygulamasında açmak istersiniz?",
+        [
+          { text: "İptal", style: "cancel" },
+          { 
+            text: "Apple Haritalar", 
+            onPress: () => Linking.openURL(`maps:0,0?q=${urlSorgu}`).catch(() => Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${urlSorgu}`)) 
+          },
+          { 
+            text: "Google Haritalar", 
+            onPress: () => Linking.openURL(`comgooglemaps://?q=${urlSorgu}`).catch(() => Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${urlSorgu}`)) 
+          }
+        ]
+      );
+    } else {
+      const haritaUri = Platform.select({
+        android: `geo:0,0?q=${urlSorgu}`,
+        default: `https://www.google.com/maps/search/?api=1&query=${urlSorgu}`
+      });
 
-    Linking.openURL(haritaUri).catch(() => {
-      Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${urlSorgu}`).catch(() => Alert.alert("Hata", "Harita açılamadı."));
-    });
+      Linking.openURL(haritaUri).catch(() => {
+        Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${urlSorgu}`).catch(() => Alert.alert("Hata", "Harita açılamadı."));
+      });
+    }
   }
 
   const sozlesmeyiKaydet = async () => {
@@ -1906,7 +1923,7 @@ export default function App() {
               </View>
             ) : null}
 
-            {googleAdsBannerAktifMi && REKLAMLARI_AKTIF_ET && Platform.OS !== 'web' && BannerAd && BannerAdSize && (
+            {(googleAdsBannerAktifMi || Platform.OS === 'ios') && REKLAMLARI_AKTIF_ET && Platform.OS !== 'web' && BannerAd && BannerAdSize && (
               <View style={{ width: '100%', alignItems: 'center', marginVertical: 8 }}>
                 <BannerAd
                   unitId={adUnitId}
@@ -2353,7 +2370,7 @@ export default function App() {
           </View>
         )}
 
-        <Modal visible={detayModalAcikMi} transparent={true} animationType="fade">
+        <Modal visible={detayModalAcikMi} transparent={true} animationType="fade" onRequestClose={() => setDetayModalAcikMi(false)}>
           <View style={styles.modalArkaPlan}>
             <View style={[styles.dropdownMenuKonteyner, { width: 360 }]}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
@@ -2385,7 +2402,7 @@ export default function App() {
           </View>
         </Modal>
 
-        <Modal visible={profilModalAcikMi} transparent={true} animationType="fade">
+        <Modal visible={profilModalAcikMi} transparent={true} animationType="fade" onRequestClose={() => setProfilModalAcikMi(false)}>
           <View style={styles.modalArkaPlan}>
             <View style={[styles.dropdownMenuKonteyner, { width: '90%', maxWidth: 400 }]}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 }}>
@@ -2398,7 +2415,7 @@ export default function App() {
               </View>
 
               {girisYapmisKullanici ? (
-                <ScrollView style={{ maxHeight: 420 }}>
+                <ScrollView style={{ maxHeight: 420 }} nestedScrollEnabled={true}>
                   <View style={{ backgroundColor: '#f1f5f9', padding: 12, borderRadius: 8, marginBottom: 15 }}>
                     <Text style={{ fontSize: 13, color: '#333', marginBottom: 6 }}>📧 <Text style={{ fontWeight: 'bold' }}>E-posta:</Text> {girisYapmisKullanici.email} <Text style={{ fontSize: 10, color: '#64748b' }}>(Değiştirilemez)</Text></Text>
                   </View>
@@ -2477,7 +2494,7 @@ export default function App() {
           </View>
         </Modal>
 
-        <Modal visible={uyeKurumEkleModalAcikMi} transparent={true} animationType="fade">
+        <Modal visible={uyeKurumEkleModalAcikMi} transparent={true} animationType="fade" onRequestClose={() => setUyeKurumEkleModalAcikMi(false)}>
           <View style={styles.modalArkaPlan}>
             <View style={[styles.dropdownMenuKonteyner, { width: '90%', maxWidth: 500, maxHeight: '90%' }]}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
@@ -2487,7 +2504,7 @@ export default function App() {
                 </TouchableOpacity>
               </View>
 
-              <ScrollView style={{ maxHeight: 450 }}>
+              <ScrollView style={{ maxHeight: 450 }} nestedScrollEnabled={true}>
                 <Text style={styles.inputEtiket}>A4 Belgesi / Fotoğrafı</Text>
                 <Text style={{ fontSize: 11, color: '#ef4444', fontWeight: 'bold', marginBottom: 6 }}>⚠️ İlgili belgenin yüklenmesi ZORUNLUDUR! (Anlaşma metninin fotoğrafı ;başlangıç ve bitiş tarihinin görüleceği şekilde.)</Text>
 
@@ -2573,7 +2590,7 @@ export default function App() {
           </View>
         </Modal>
 
-        <Modal visible={!!tamEkranGorsel} transparent={true} animationType="fade">
+        <Modal visible={!!tamEkranGorsel} transparent={true} animationType="fade" onRequestClose={() => setTamEkranGorsel(null)}>
           <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
             <View style={{ width: '100%', maxWidth: 600, height: '80%', backgroundColor: '#fff', borderRadius: 12, overflow: 'hidden', position: 'relative' }}>
               <TouchableOpacity style={{ position: 'absolute', top: 10, right: 10, zIndex: 99, backgroundColor: '#ef4444', width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center' }} onPress={() => setTamEkranGorsel(null)}>
@@ -2590,7 +2607,7 @@ export default function App() {
           </View>
         </Modal>
 
-        <Modal visible={kategoriYonetimModalAcikMi} transparent={true} animationType="fade">
+        <Modal visible={kategoriYonetimModalAcikMi} transparent={true} animationType="fade" onRequestClose={() => setKategoriYonetimModalAcikMi(false)}>
           <View style={styles.modalArkaPlan}>
             <View style={[styles.dropdownMenuKonteyner, { width: 380 }]}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
@@ -2600,7 +2617,7 @@ export default function App() {
                 </TouchableOpacity>
               </View>
 
-              <ScrollView style={{ maxHeight: 350 }}>
+              <ScrollView style={{ maxHeight: 350 }} nestedScrollEnabled={true}>
                 <View style={{ backgroundColor: '#f1f5f9', padding: 10, borderRadius: 8, marginBottom: 12 }}>
                   <Text style={styles.inputEtiket}>Yeni Kategori Ekle</Text>
                   <TextInput style={styles.inputField} placeholder="Kategori adı..." value={yeniKategoriAdi} onChangeText={setYeniKategoriAdi} />
@@ -2648,7 +2665,7 @@ export default function App() {
           </View>
         </Modal>
 
-        <Modal visible={hamburgerMenuAcikMi} transparent={true} animationType="fade">
+        <Modal visible={hamburgerMenuAcikMi} transparent={true} animationType="fade" onRequestClose={() => setHamburgerMenuAcikMi(false)}>
           <View style={styles.modalArkaPlan}>
             <View style={styles.dropdownMenuKonteyner}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
@@ -2657,7 +2674,7 @@ export default function App() {
                   <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#b91c1c' }}>✕</Text>
                 </TouchableOpacity>
               </View>
-              <ScrollView style={styles.modalDikeyKaydirmaAlani}>
+              <ScrollView style={styles.modalDikeyKaydirmaAlani} nestedScrollEnabled={true}>
                 <TouchableOpacity style={styles.dropdownMenuSatir} onPress={() => { setHamburgerMenuAcikMi(false); setReklamYonetimModalAcikMi(true); }}>
                   <Text style={{ color: '#00205B', fontWeight: 'bold' }}>📢 Reklam & Sponsorluk Yönetimi</Text>
                 </TouchableOpacity>
@@ -2675,7 +2692,7 @@ export default function App() {
           </View>
         </Modal>
 
-        <Modal visible={reklamYonetimModalAcikMi} transparent={true} animationType="fade">
+        <Modal visible={reklamYonetimModalAcikMi} transparent={true} animationType="fade" onRequestClose={() => setReklamYonetimModalAcikMi(false)}>
           <View style={styles.modalArkaPlan}>
             <View style={[styles.dropdownMenuKonteyner, { width: 380 }]}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
@@ -2794,7 +2811,7 @@ export default function App() {
           </View>
         </Modal>
 
-        <Modal visible={reklamDuzenleModalAcikMi} transparent={true} animationType="fade">
+        <Modal visible={reklamDuzenleModalAcikMi} transparent={true} animationType="fade" onRequestClose={() => setReklamDuzenleModalAcikMi(false)}>
           <View style={styles.modalArkaPlan}>
             <View style={[styles.dropdownMenuKonteyner, { width: 350 }]}>
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
@@ -2804,7 +2821,7 @@ export default function App() {
                 </TouchableOpacity>
               </View>
 
-              <ScrollView style={{ maxHeight: 340 }}>
+              <ScrollView style={{ maxHeight: 340 }} nestedScrollEnabled={true}>
                 <Text style={styles.inputEtiket}>Reklam Başlığı</Text>
                 <TextInput style={styles.inputField} value={reklamFormBaslik} onChangeText={setReklamFormBaslik} placeholder="Başlık" />
 
@@ -2848,11 +2865,11 @@ export default function App() {
           </View>
         </Modal>
 
-        <Modal visible={sosyalAyarlarModalAcikMi} transparent={true} animationType="fade">
+        <Modal visible={sosyalAyarlarModalAcikMi} transparent={true} animationType="fade" onRequestClose={() => setSosyalAyarlarModalAcikMi(false)}>
           <View style={styles.modalArkaPlan}>
             <View style={[styles.dropdownMenuKonteyner, { width: 370 }]}>
               <Text style={styles.modalBaslikYazOriginal}>Kurumsal İletişim & Sosyal Ayarlar</Text>
-              <ScrollView style={{ maxHeight: 380 }}>
+              <ScrollView style={{ maxHeight: 380 }} nestedScrollEnabled={true}>
                 
                 <Text style={styles.inputEtiket}>Adres Bilgisi</Text>
                 <TextInput style={styles.inputField} placeholder="Kurumsal adres..." value={sosyalAdres} onChangeText={setSosyalAdres} />
@@ -2914,7 +2931,7 @@ export default function App() {
           </View>
         </Modal>
 
-        <Modal visible={sifreDegistirModalAcikMi} transparent={true} animationType="fade">
+        <Modal visible={sifreDegistirModalAcikMi} transparent={true} animationType="fade" onRequestClose={() => setSifreDegistirModalAcikMi(false)}>
           <View style={styles.modalArkaPlan}>
             <View style={[styles.dropdownMenuKonteyner, { width: 320 }]}>
               <Text style={styles.modalBaslikYazOriginal}>🔑 Yönetici Giriş Şifresi Güncelleme</Text>
@@ -2932,11 +2949,11 @@ export default function App() {
           </View>
         </Modal>
 
-        <Modal visible={ilDropdownAcikMi} transparent={true} animationType="fade">
+        <Modal visible={ilDropdownAcikMi} transparent={true} animationType="fade" onRequestClose={() => setIlDropdownAcikMi(false)}>
           <View style={styles.modalArkaPlan}>
             <View style={styles.dropdownMenuKonteyner}>
               <Text style={styles.modalBaslikYazOriginal}>İl Seçin</Text>
-              <ScrollView style={styles.modalDikeyKaydirmaAlani}>
+              <ScrollView style={styles.modalDikeyKaydirmaAlani} nestedScrollEnabled={true}>
                 {mevcutIller.map((il, idx) => (
                   <TouchableOpacity key={idx} style={styles.dropdownMenuSatir} onPress={() => { filtreyiKaydetVeGuncelle('il', il); setIlDropdownAcikMi(false); }}>
                     <Text style={{ fontWeight: seciliIlFiltre === il ? 'bold' : 'normal' }}>📍 {il}</Text>
@@ -2948,11 +2965,11 @@ export default function App() {
           </View>
         </Modal>
 
-        <Modal visible={ilceDropdownAcikMi} transparent={true} animationType="fade">
+        <Modal visible={ilceDropdownAcikMi} transparent={true} animationType="fade" onRequestClose={() => setIlceDropdownAcikMi(false)}>
           <View style={styles.modalArkaPlan}>
             <View style={styles.dropdownMenuKonteyner}>
               <Text style={styles.modalBaslikYazOriginal}>İlçe Seçin</Text>
-              <ScrollView style={styles.modalDikeyKaydirmaAlani}>
+              <ScrollView style={styles.modalDikeyKaydirmaAlani} nestedScrollEnabled={true}>
                 {mevcutIlceler.map((ilce, idx) => (
                   <TouchableOpacity key={idx} style={styles.dropdownMenuSatir} onPress={() => { filtreyiKaydetVeGuncelle('ilce', ilce); setIlceDropdownAcikMi(false); }}>
                     <Text style={{ fontWeight: seciliIlceFiltre === ilce ? 'bold' : 'normal' }}>🏘️ {ilce}</Text>
@@ -2964,11 +2981,11 @@ export default function App() {
           </View>
         </Modal>
 
-        <Modal visible={uyeDropdownAcikMi} transparent={true} animationType="fade">
+        <Modal visible={uyeDropdownAcikMi} transparent={true} animationType="fade" onRequestClose={() => setUyeDropdownAcikMi(false)}>
           <View style={styles.modalArkaPlan}>
             <View style={styles.dropdownMenuKonteyner}>
               <Text style={styles.modalBaslikYazOriginal}>Kategori Seçin</Text>
-              <ScrollView style={styles.modalDikeyKaydirmaAlani}>
+              <ScrollView style={styles.modalDikeyKaydirmaAlani} nestedScrollEnabled={true}>
                 <TouchableOpacity style={styles.dropdownMenuSatir} onPress={() => { filtreyiKaydetVeGuncelle('kategori', 'Hepsi'); setUyeDropdownAcikMi(false); }}>
                   <Text style={{ fontWeight: 'bold' }}>Hepsi</Text>
                 </TouchableOpacity>
@@ -2983,11 +3000,11 @@ export default function App() {
           </View>
         </Modal>
 
-        <Modal visible={adminIlDrop} transparent={true} animationType="fade">
+        <Modal visible={adminIlDrop} transparent={true} animationType="fade" onRequestClose={() => setAdminIlDrop(false)}>
           <View style={styles.modalArkaPlan}>
             <View style={styles.dropdownMenuKonteyner}>
               <Text style={styles.modalBaslikYazOriginal}>İl Seçin</Text>
-              <ScrollView style={styles.modalDikeyKaydirmaAlani}>
+              <ScrollView style={styles.modalDikeyKaydirmaAlani} nestedScrollEnabled={true}>
                 {adminIllerListesi.map((il, idx) => (
                   <TouchableOpacity key={idx} style={styles.dropdownMenuSatir} onPress={() => { setAdminSeciliIl(il); setAdminSeciliIlce('Hepsi'); setAdminIlDrop(false); }}>
                     <Text style={{ fontWeight: adminSeciliIl === il ? 'bold' : 'normal' }}>📍 {il}</Text>
@@ -2999,11 +3016,11 @@ export default function App() {
           </View>
         </Modal>
 
-        <Modal visible={adminIlceDrop} transparent={true} animationType="fade">
+        <Modal visible={adminIlceDrop} transparent={true} animationType="fade" onRequestClose={() => setAdminIlceDrop(false)}>
           <View style={styles.modalArkaPlan}>
             <View style={styles.dropdownMenuKonteyner}>
               <Text style={styles.modalBaslikYazOriginal}>İlçe Seçin</Text>
-              <ScrollView style={styles.modalDikeyKaydirmaAlani}>
+              <ScrollView style={styles.modalDikeyKaydirmaAlani} nestedScrollEnabled={true}>
                 {adminIlcelerListesi.map((ilce, idx) => (
                   <TouchableOpacity key={idx} style={styles.dropdownMenuSatir} onPress={() => { setAdminSeciliIlce(ilce); setAdminIlceDrop(false); }}>
                     <Text style={{ fontWeight: adminSeciliIlce === ilce ? 'bold' : 'normal' }}>🏘️ {ilce}</Text>
@@ -3015,11 +3032,11 @@ export default function App() {
           </View>
         </Modal>
 
-        <Modal visible={adminKatDrop} transparent={true} animationType="fade">
+        <Modal visible={adminKatDrop} transparent={true} animationType="fade" onRequestClose={() => setAdminKatDrop(false)}>
           <View style={styles.modalArkaPlan}>
             <View style={styles.dropdownMenuKonteyner}>
               <Text style={styles.modalBaslikYazOriginal}>Kategori Seçin</Text>
-              <ScrollView style={styles.modalDikeyKaydirmaAlani}>
+              <ScrollView style={styles.modalDikeyKaydirmaAlani} nestedScrollEnabled={true}>
                 <TouchableOpacity style={styles.dropdownMenuSatir} onPress={() => { setAdminSeciliKat('Hepsi'); setAdminKatDrop(false); }}>
                   <Text style={{ fontWeight: 'bold' }}>Hepsi</Text>
                 </TouchableOpacity>
@@ -3034,11 +3051,11 @@ export default function App() {
           </View>
         </Modal>
 
-        <Modal visible={formIlDropdownAcikMi} transparent={true} animationType="fade">
+        <Modal visible={formIlDropdownAcikMi} transparent={true} animationType="fade" onRequestClose={() => setFormIlDropdownAcikMi(false)}>
           <View style={styles.modalArkaPlan}>
             <View style={styles.dropdownMenuKonteyner}>
               <Text style={styles.modalBaslikYazOriginal}>İl Seçin</Text>
-              <ScrollView style={styles.modalDikeyKaydirmaAlani}>
+              <ScrollView style={styles.modalDikeyKaydirmaAlani} nestedScrollEnabled={true}>
                 {formIllerListesi.map((il, idx) => (
                   <TouchableOpacity key={idx} style={styles.dropdownMenuSatir} onPress={() => { setFormSeciliIl(il); setFormSeciliIlce(TURKIYE_ILLERI_VE_ILCELERI[il][0] || 'Merkez'); setFormIlDropdownAcikMi(false); }}>
                     <Text style={{ fontWeight: formSeciliIl === il ? 'bold' : 'normal' }}>📍 {il}</Text>
@@ -3050,11 +3067,11 @@ export default function App() {
           </View>
         </Modal>
 
-        <Modal visible={formIlceDropdownAcikMi} transparent={true} animationType="fade">
+        <Modal visible={formIlceDropdownAcikMi} transparent={true} animationType="fade" onRequestClose={() => setFormIlceDropdownAcikMi(false)}>
           <View style={styles.modalArkaPlan}>
             <View style={styles.dropdownMenuKonteyner}>
               <Text style={styles.modalBaslikYazOriginal}>İlçe Seçin</Text>
-              <ScrollView style={styles.modalDikeyKaydirmaAlani}>
+              <ScrollView style={styles.modalDikeyKaydirmaAlani} nestedScrollEnabled={true}>
                 {formIlcelerListesi.map((ilce, idx) => (
                   <TouchableOpacity key={idx} style={styles.dropdownMenuSatir} onPress={() => { setFormSeciliIlce(ilce); setFormIlceDropdownAcikMi(false); }}>
                     <Text style={{ fontWeight: formSeciliIlce === ilce ? 'bold' : 'normal' }}>🏘️ {ilce}</Text>
@@ -3066,11 +3083,11 @@ export default function App() {
           </View>
         </Modal>
 
-        <Modal visible={formKatDropdownAcikMi} transparent={true} animationType="fade">
+        <Modal visible={formKatDropdownAcikMi} transparent={true} animationType="fade" onRequestClose={() => setFormKatDropdownAcikMi(false)}>
           <View style={styles.modalArkaPlan}>
             <View style={styles.dropdownMenuKonteyner}>
               <Text style={styles.modalBaslikYazOriginal}>Kategori Seçin</Text>
-              <ScrollView style={styles.modalDikeyKaydirmaAlani}>
+              <ScrollView style={styles.modalDikeyKaydirmaAlani} nestedScrollEnabled={true}>
                 {kategoriler.map(kat => (
                   <TouchableOpacity key={kat.id} style={styles.dropdownMenuSatir} onPress={() => { setFormSeciliKategori(kat.name); setYeniKategoriGeciciInput(''); setFormKatDropdownAcikMi(false); }}>
                     <Text style={{ fontWeight: formSeciliKategori === kat.name ? 'bold' : 'normal' }}>📂 {kat.name}</Text>
