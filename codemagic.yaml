@@ -44,8 +44,6 @@ workflows:
       cocoapods: default
       vars:
         BUNDLE_ID: "com.cngzgndz.ordumumessilleri"
-      groups:
-        - app_store_connect
     scripts:
       - name: Install Node dependencies
         script: |
