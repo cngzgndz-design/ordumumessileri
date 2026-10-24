@@ -69,6 +69,5 @@ workflows:
 publishing:
       app_store_connect:
         auth: integration
-        # Eğer Codemagic entegrasyonuna bir isim verdiysen buraya yazabilirsin, 
-        # vermediysen doğrudan aşağıdaki gibi bırakabilirsin:
+        name: EASSubmitKey
         submit_to_testflight: true
