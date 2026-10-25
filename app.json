@@ -1,7 +1,7 @@
 {
-  "expo": {
-    "name": "Mümessil İndirim",
-    "slug": "ordumumessileri",
+   "expo": {
+    "name": "Mümessil",
+    "slug": "mumessil-indirim",
     "version": "1.2.3",
     "orientation": "default",
     "icon": "./assets/logo.png",
@@ -9,19 +9,20 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.cngzgndz.ordumumessilleri",
-      "buildNumber": "6",
+      "buildNumber": "7",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSPhotoLibraryUsageDescription": "Yönetici paneli üzerinden kadro ve profil görsellerini güncelleyebilmek için fotoğraf kütüphanesine erişim gereklidir (örneğin: ekip üyelerinden birinin fotoğrafını seçip yüklemek için)."
       }
-    },
+    }, 
+
     "android": {
       "adaptiveIcon": {
         "backgroundColor": "#FFFFFF",
         "foregroundImage": "./assets/logo.png"
       },
       "package": "com.cengizgunduz.ordumumessilleri",
-      "versionCode": 29,
+      "versionCode": 30,
       "softwareKeyboardLayoutMode": "pan",
       "intentFilters": [],
       "permissions": []
