@@ -1,7 +1,7 @@
 {
    "expo": {
     "name": "Mümessil",
-    "slug": "mumessil-indirim",
+    "slug": "ordumumessileri",
     "version": "1.2.3",
     "orientation": "default",
     "icon": "./assets/logo.png",
