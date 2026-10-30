@@ -149,7 +149,7 @@ export default function App() {
   const [defaultBannerAktifMi, setDefaultBannerAktifMi] = useState(true);
   const [googleAdsBannerAktifMi, setGoogleAdsBannerAktifMi] = useState(false);
 
-  const [indirimFiltreAcikMi, setIndirimFiltreAcikMi] = useState(false);
+  const [indirimFiltreAcikMi, setIndirimFiltreAcikMi] = useState(true);
 
   const [girisYapmisKullanici, setGirisYapmisKullanici] = useState(null); 
   const [profilModalAcikMi, setProfilModalAcikMi] = useState(false);
