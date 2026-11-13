@@ -146,7 +146,7 @@ export default function App() {
   const [kategoriler, setKategoriler] = useState([]);
   const [tamEkranGorsel, setTamEkranGorsel] = useState(null);
   const [sponsorReklamlar, setSponsorReklamlar] = useState([]);
-  const [defaultBannerAktifMi, setDefaultBannerAktifMi] = useState(true);
+  const [defaultBannerAktifMi, setDefaultBannerAktifMi] = useState(false);
   const [googleAdsBannerAktifMi, setGoogleAdsBannerAktifMi] = useState(false);
 
   const [indirimFiltreAcikMi, setIndirimFiltreAcikMi] = useState(true);
