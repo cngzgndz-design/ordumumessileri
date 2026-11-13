@@ -22,7 +22,7 @@
         "foregroundImage": "./assets/logo.png"
       },
       "package": "com.cengizgunduz.ordumumessilleri",
-      "versionCode": 32,
+      "versionCode": 25,
       "softwareKeyboardLayoutMode": "pan",
       "intentFilters": [],
       "permissions": []
