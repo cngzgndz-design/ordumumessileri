@@ -9,10 +9,11 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.cngzgndz.ordumumessilleri",
-      "buildNumber": "9",
+      "buildNumber": "10",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "NSPhotoLibraryUsageDescription": "Yönetici paneli üzerinden kadro ve profil görsellerini güncelleyebilmek için fotoğraf kütüphanesine erişim gereklidir (örneğin: ekip üyelerinden birinin fotoğrafını seçip yüklemek için)."
+        "NSPhotoLibraryUsageDescription": "Yönetici paneli üzerinden kadro ve profil görsellerini güncelleyebilmek için fotoğraf kütüphanesine erişim gereklidir (örneğin: ekip üyelerinden birinin fotoğrafını seçip yüklemek için).",
+        "NSCameraUsageDescription": "This app uses the camera for members across Turkey who want to add contracted institutions, for example when taking a photo of the agreement text or the contract signed with the institution to upload it to the system."
       }
     }, 
 
